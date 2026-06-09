@@ -1,0 +1,45 @@
+{
+  "type": "stat",
+  "title": "Avg holding duration",
+  "description": "Mean time between lot open and close across closures.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "s",
+      "decimals": 0,
+      "color": {
+        "mode": "fixed",
+        "fixedColor": "blue"
+      }
+    }
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "none",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "text": {
+      "titleSize": 16,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef avg_duration_sec(closures):\n    return None if closures.is_empty() else float(closures[\"holding_seconds\"].mean())\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

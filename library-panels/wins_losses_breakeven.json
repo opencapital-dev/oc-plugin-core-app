@@ -1,0 +1,169 @@
+{
+  "type": "bargauge",
+  "title": "Wins / Losses / Breakeven",
+  "description": "Closure outcome counts.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "short",
+      "decimals": 0,
+      "color": {
+        "mode": "thresholds"
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "blue",
+            "value": null
+          }
+        ]
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Wins"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "green"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Losses"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "red"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Breakeven"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "yellow"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byFrameRefID",
+          "options": "A"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Wins"
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "green"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byFrameRefID",
+          "options": "B"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Losses"
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "red"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byFrameRefID",
+          "options": "C"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Breakeven"
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "yellow"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "displayMode": "gradient",
+    "orientation": "horizontal",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "showUnfilled": true
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_wins(closures):\n    return float(closures.filter(pl.col(\"realized_pnl\") > 0).height)\n"
+    },
+    {
+      "refId": "B",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_losses(closures):\n    return float(closures.filter(pl.col(\"realized_pnl\") < 0).height)\n"
+    },
+    {
+      "refId": "C",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_zero(closures):\n    return float(closures.filter(pl.col(\"realized_pnl\") == 0).height)\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

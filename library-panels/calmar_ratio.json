@@ -1,0 +1,61 @@
+{
+  "type": "stat",
+  "title": "Calmar Ratio",
+  "description": "Annualized return / |max_drawdown|. None when no drawdown.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "none",
+      "decimals": 2,
+      "color": {
+        "mode": "thresholds"
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "red",
+            "value": null
+          },
+          {
+            "color": "yellow",
+            "value": 1.0
+          },
+          {
+            "color": "green",
+            "value": 3.0
+          }
+        ]
+      }
+    }
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "none",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "text": {
+      "titleSize": 16,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "STEP_SEC = 3600 if \"${sample_interval}\" == \"1h\" else 86400\nSTEP_US = STEP_SEC * 1_000_000\n\n@bind(nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\", flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef calmar_ratio(nav, flows):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    flow_ts = [r[0] for r in flows.select(\"ts\").rows() if r[0] > effective_start]\n    grid = build_grid(effective_start, t1, STEP_US)\n    cum_series = cumulative_twr(nav, flow_ts, effective_start, grid)\n    if not cum_series:\n        return None\n    cum = [v for _, v in cum_series]\n    n_periods = max(0, len(cum) - 1)\n    py = (365 * 86400) / STEP_SEC\n    total = cum[-1]\n    ann_ret = annualize_return(total, n_periods, py)\n    max_dd = max_drawdown(cum)\n    return calmar(ann_ret, max_dd)\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

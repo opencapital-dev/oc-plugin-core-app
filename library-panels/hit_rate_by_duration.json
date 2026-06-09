@@ -1,0 +1,127 @@
+{
+  "type": "table",
+  "title": "Hit rate by holding-period bucket",
+  "description": "Round-trips bucketed by how long they were held. Win rate = wins / (wins + losses).",
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "align": "auto",
+        "displayMode": "auto"
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "win_rate"
+        },
+        "properties": [
+          {
+            "id": "unit",
+            "value": "percentunit"
+          },
+          {
+            "id": "decimals",
+            "value": 2
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "avg_pnl"
+        },
+        "properties": [
+          {
+            "id": "unit",
+            "value": "locale"
+          },
+          {
+            "id": "decimals",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "label"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Bucket"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "n_round_trips"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Round-trips"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "n_wins"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Wins"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "win_rate"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Win rate"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "avg_pnl"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Avg PnL"
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "showHeader": true,
+    "footer": {
+      "show": false
+    }
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "_DAY = 86400.0\n_BANDS = [\n    (\"< 1d\", 0.0, _DAY),\n    (\"1-7d\", _DAY, 7 * _DAY),\n    (\"7-30d\", 7 * _DAY, 30 * _DAY),\n    (\">30d\", 30 * _DAY, float(\"inf\")),\n]\n\n\n@bind(cycles=\"cycles{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"table\")\ndef hit_rate_by_duration(cycles):\n    labels, n_round_trips, n_wins, win_rate, avg_pnl = [], [], [], [], []\n    for label, lo, hi in _BANDS:\n        band = cycles.filter(\n            (pl.col(\"duration_sec\") >= lo) & (pl.col(\"duration_sec\") < hi)\n        )\n        n = band.height\n        if n == 0:\n            continue\n        pnl = band[\"pnl_base\"]\n        wins = int((pnl > 0).sum())\n        decisive = int((pnl != 0).sum())\n        labels.append(label)\n        n_round_trips.append(float(n))\n        n_wins.append(float(wins))\n        win_rate.append(wins / decisive if decisive > 0 else float(\"nan\"))\n        avg_pnl.append(float(pnl.mean()))\n    return pl.DataFrame({\n        \"label\": labels,\n        \"n_round_trips\": n_round_trips,\n        \"n_wins\": n_wins,\n        \"win_rate\": win_rate,\n        \"avg_pnl\": avg_pnl,\n    })\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

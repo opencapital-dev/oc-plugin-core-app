@@ -1,0 +1,11 @@
+apiVersion: 1
+
+apps:
+  - type: 'core-app'
+    org_id: 1
+    org_name: 'portfolio-management'
+    disabled: false
+    jsonData:
+      apiUrl: http://default-url.com
+    secureJsonData:
+      apiKey: secret-key

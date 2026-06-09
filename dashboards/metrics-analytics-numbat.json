@@ -1,0 +1,754 @@
+{
+  "title": "Analytics \u2014 Performance & Trade Stats",
+  "uid": "metrics-analytics-numbat",
+  "tags": [
+    "portfolio",
+    "analytics"
+  ],
+  "schemaVersion": 41,
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "portfolio_id",
+        "label": "Portfolio",
+        "type": "query",
+        "datasource": {
+          "type": "core-datasource",
+          "uid": "core-datasource"
+        },
+        "query": {
+          "refId": "V",
+          "source": "@bind(rows=\"portfolios{}\")\n@metric(output=\"table\")\ndef portfolios(rows):\n    return rows\n"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "options": [],
+        "current": {}
+      },
+      {
+        "name": "base_currency",
+        "type": "textbox",
+        "current": {
+          "text": "GBP",
+          "value": "GBP"
+        },
+        "query": "GBP",
+        "label": "Base ccy"
+      },
+      {
+        "name": "sample_interval",
+        "type": "custom",
+        "label": "Sample",
+        "query": "1d,1h",
+        "options": [
+          {
+            "text": "1d",
+            "value": "1d",
+            "selected": true
+          },
+          {
+            "text": "1h",
+            "value": "1h",
+            "selected": false
+          }
+        ],
+        "current": {
+          "text": "1d",
+          "value": "1d"
+        }
+      },
+      {
+        "name": "risk_free",
+        "type": "textbox",
+        "current": {
+          "text": "0.04",
+          "value": "0.04"
+        },
+        "query": "0.04",
+        "label": "Risk-free (annualized)"
+      },
+      {
+        "name": "benchmark_ids",
+        "type": "textbox",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "query": "",
+        "label": "Benchmark"
+      },
+      {
+        "name": "benchmark_weights",
+        "type": "textbox",
+        "current": {
+          "text": "null",
+          "value": "null"
+        },
+        "query": "null",
+        "label": "Benchmark weights (JSON list or null)"
+      },
+      {
+        "name": "lookback_periods",
+        "type": "textbox",
+        "current": {
+          "text": "60",
+          "value": "60"
+        },
+        "query": "60",
+        "label": "Beta rolling lookback (periods)"
+      },
+      {
+        "name": "beta_mode",
+        "type": "custom",
+        "label": "Beta mode",
+        "query": "rolling,expanding,both",
+        "options": [
+          {
+            "text": "rolling",
+            "value": "rolling",
+            "selected": false
+          },
+          {
+            "text": "expanding",
+            "value": "expanding",
+            "selected": false
+          },
+          {
+            "text": "both",
+            "value": "both",
+            "selected": true
+          }
+        ],
+        "current": {
+          "text": "both",
+          "value": "both"
+        }
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "type": "row",
+      "id": 1,
+      "title": "Equity-curve metrics",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "libraryPanel": {
+        "uid": "core-app-total_return",
+        "name": "core-app/total_return"
+      }
+    },
+    {
+      "id": 3,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "libraryPanel": {
+        "uid": "core-app-annualized_return",
+        "name": "core-app/annualized_return"
+      }
+    },
+    {
+      "id": 4,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "libraryPanel": {
+        "uid": "core-app-volatility",
+        "name": "core-app/volatility"
+      }
+    },
+    {
+      "id": 5,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "libraryPanel": {
+        "uid": "core-app-sharpe_ratio",
+        "name": "core-app/sharpe_ratio"
+      }
+    },
+    {
+      "id": 6,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      },
+      "libraryPanel": {
+        "uid": "core-app-sortino_ratio",
+        "name": "core-app/sortino_ratio"
+      }
+    },
+    {
+      "id": 7,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      },
+      "libraryPanel": {
+        "uid": "core-app-max_drawdown",
+        "name": "core-app/max_drawdown"
+      }
+    },
+    {
+      "id": 8,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "libraryPanel": {
+        "uid": "core-app-current_drawdown",
+        "name": "core-app/current_drawdown"
+      }
+    },
+    {
+      "id": 9,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      },
+      "libraryPanel": {
+        "uid": "core-app-calmar_ratio",
+        "name": "core-app/calmar_ratio"
+      }
+    },
+    {
+      "type": "row",
+      "id": 10,
+      "title": "Money-weighted return (XIRR)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "panels": []
+    },
+    {
+      "id": 11,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "libraryPanel": {
+        "uid": "core-app-xirr_annualized",
+        "name": "core-app/xirr_annualized"
+      }
+    },
+    {
+      "id": 12,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "libraryPanel": {
+        "uid": "core-app-xirr_cumulative",
+        "name": "core-app/xirr_cumulative"
+      }
+    },
+    {
+      "type": "row",
+      "id": 13,
+      "title": "Drawdown episodes",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "panels": []
+    },
+    {
+      "id": 14,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "libraryPanel": {
+        "uid": "core-app-drawdown_episodes",
+        "name": "core-app/drawdown_episodes"
+      }
+    },
+    {
+      "type": "row",
+      "id": 15,
+      "title": "Beta vs benchmark (scalars)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "panels": []
+    },
+    {
+      "id": 16,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 28
+      },
+      "libraryPanel": {
+        "uid": "core-app-beta_rolling_latest",
+        "name": "core-app/beta_rolling_latest"
+      }
+    },
+    {
+      "id": 17,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 28
+      },
+      "libraryPanel": {
+        "uid": "core-app-beta_expanding_latest",
+        "name": "core-app/beta_expanding_latest"
+      }
+    },
+    {
+      "id": 18,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 28
+      },
+      "libraryPanel": {
+        "uid": "core-app-alpha_rolling_latest",
+        "name": "core-app/alpha_rolling_latest"
+      }
+    },
+    {
+      "id": 19,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 28
+      },
+      "libraryPanel": {
+        "uid": "core-app-r_squared_rolling_latest",
+        "name": "core-app/r_squared_rolling_latest"
+      }
+    },
+    {
+      "type": "row",
+      "id": 20,
+      "title": "Beta vs benchmark (timeseries)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 33
+      },
+      "panels": []
+    },
+    {
+      "id": 21,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 34
+      },
+      "libraryPanel": {
+        "uid": "core-app-beta_series",
+        "name": "core-app/beta_series"
+      }
+    },
+    {
+      "id": 22,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 34
+      },
+      "libraryPanel": {
+        "uid": "core-app-alpha_series",
+        "name": "core-app/alpha_series"
+      }
+    },
+    {
+      "id": 23,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 42
+      },
+      "libraryPanel": {
+        "uid": "core-app-r_squared_series",
+        "name": "core-app/r_squared_series"
+      }
+    },
+    {
+      "id": 24,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 42
+      },
+      "libraryPanel": {
+        "uid": "core-app-returns_pair_series",
+        "name": "core-app/returns_pair_series"
+      }
+    },
+    {
+      "type": "row",
+      "id": 25,
+      "title": "Trade statistics (FIFO lot closures)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "panels": []
+    },
+    {
+      "id": 26,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 51
+      },
+      "libraryPanel": {
+        "uid": "core-app-n_trades",
+        "name": "core-app/n_trades"
+      }
+    },
+    {
+      "id": 27,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 51
+      },
+      "libraryPanel": {
+        "uid": "core-app-win_rate",
+        "name": "core-app/win_rate"
+      }
+    },
+    {
+      "id": 28,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 51
+      },
+      "libraryPanel": {
+        "uid": "core-app-profit_factor",
+        "name": "core-app/profit_factor"
+      }
+    },
+    {
+      "id": 29,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 51
+      },
+      "libraryPanel": {
+        "uid": "core-app-expectancy",
+        "name": "core-app/expectancy"
+      }
+    },
+    {
+      "id": 30,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 56
+      },
+      "libraryPanel": {
+        "uid": "core-app-avg_win",
+        "name": "core-app/avg_win"
+      }
+    },
+    {
+      "id": 31,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 56
+      },
+      "libraryPanel": {
+        "uid": "core-app-avg_loss",
+        "name": "core-app/avg_loss"
+      }
+    },
+    {
+      "id": 32,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 56
+      },
+      "libraryPanel": {
+        "uid": "core-app-largest_profit",
+        "name": "core-app/largest_profit"
+      }
+    },
+    {
+      "id": 33,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 56
+      },
+      "libraryPanel": {
+        "uid": "core-app-largest_loss",
+        "name": "core-app/largest_loss"
+      }
+    },
+    {
+      "id": 34,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 61
+      },
+      "libraryPanel": {
+        "uid": "core-app-pnl_ratio",
+        "name": "core-app/pnl_ratio"
+      }
+    },
+    {
+      "id": 35,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 61
+      },
+      "libraryPanel": {
+        "uid": "core-app-avg_duration_sec",
+        "name": "core-app/avg_duration_sec"
+      }
+    },
+    {
+      "id": 36,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 61
+      },
+      "libraryPanel": {
+        "uid": "core-app-wins_losses_breakeven",
+        "name": "core-app/wins_losses_breakeven"
+      }
+    },
+    {
+      "type": "row",
+      "id": 37,
+      "title": "Position statistics (per-instrument)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "panels": []
+    },
+    {
+      "id": 38,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 67
+      },
+      "libraryPanel": {
+        "uid": "core-app-n_instruments_traded",
+        "name": "core-app/n_instruments_traded"
+      }
+    },
+    {
+      "id": 39,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 67
+      },
+      "libraryPanel": {
+        "uid": "core-app-n_currently_open",
+        "name": "core-app/n_currently_open"
+      }
+    },
+    {
+      "id": 40,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 67
+      },
+      "libraryPanel": {
+        "uid": "core-app-n_winning_instruments",
+        "name": "core-app/n_winning_instruments"
+      }
+    },
+    {
+      "id": 41,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 67
+      },
+      "libraryPanel": {
+        "uid": "core-app-n_losing_instruments",
+        "name": "core-app/n_losing_instruments"
+      }
+    },
+    {
+      "id": 42,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 72
+      },
+      "libraryPanel": {
+        "uid": "core-app-sum_realized_pnl_base",
+        "name": "core-app/sum_realized_pnl_base"
+      }
+    },
+    {
+      "id": 43,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 72
+      },
+      "libraryPanel": {
+        "uid": "core-app-sum_total_pnl_base",
+        "name": "core-app/sum_total_pnl_base"
+      }
+    },
+    {
+      "id": 44,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 72
+      },
+      "libraryPanel": {
+        "uid": "core-app-re_entry_rate",
+        "name": "core-app/re_entry_rate"
+      }
+    },
+    {
+      "id": 45,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 72
+      },
+      "libraryPanel": {
+        "uid": "core-app-n_re_entries",
+        "name": "core-app/n_re_entries"
+      }
+    },
+    {
+      "id": 46,
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 77
+      },
+      "libraryPanel": {
+        "uid": "core-app-instruments_breakdown",
+        "name": "core-app/instruments_breakdown"
+      }
+    },
+    {
+      "id": 47,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 89
+      },
+      "libraryPanel": {
+        "uid": "core-app-hit_rate_by_duration",
+        "name": "core-app/hit_rate_by_duration"
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "type": "stat",
+  "title": "Expectancy (per trade)",
+  "description": "win_rate*avg_win + (1-win_rate)*avg_loss \u2014 expected PnL per trade in base ccy.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "locale",
+      "decimals": 0,
+      "color": {
+        "mode": "thresholds"
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "red",
+            "value": null
+          },
+          {
+            "color": "yellow",
+            "value": 0
+          },
+          {
+            "color": "green",
+            "value": 0.001
+          }
+        ]
+      }
+    }
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "none",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "text": {
+      "titleSize": 16,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef expectancy(closures):\n    n_w = closures.filter(pl.col(\"realized_pnl\") > 0).height\n    n_l = closures.filter(pl.col(\"realized_pnl\") < 0).height\n    decisive = n_w + n_l\n    if decisive == 0:\n        return None\n    wr = n_w / decisive\n    wins = closures.filter(pl.col(\"realized_pnl\") > 0)\n    losses = closures.filter(pl.col(\"realized_pnl\") < 0)\n    aw = float(wins[\"realized_pnl\"].mean()) if not wins.is_empty() else 0.0\n    al = float(losses[\"realized_pnl\"].mean()) if not losses.is_empty() else 0.0\n    return wr * aw + (1 - wr) * al\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

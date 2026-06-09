@@ -1,0 +1,65 @@
+{
+  "type": "stat",
+  "title": "XIRR cumulative (window)",
+  "description": "XIRR expressed over the actual window length \u2014 directly comparable to TWR Total Return. Differs from TWR when in-window cashflows or transfers shift the investor's average capital exposure.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "percentunit",
+      "decimals": 2,
+      "color": {
+        "mode": "thresholds"
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "red",
+            "value": null
+          },
+          {
+            "color": "yellow",
+            "value": -0.0001
+          },
+          {
+            "color": "yellow",
+            "value": 0.0001
+          },
+          {
+            "color": "green",
+            "value": 0.05
+          }
+        ]
+      }
+    }
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "none",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "text": {
+      "titleSize": 16,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\", flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef xirr_cumulative_return(nav, flows):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    opening_nav = asof(nav, effective_start)\n    if opening_nav is None:\n        return None\n    terminal_rows = nav.filter(pl.col(\"ts\") <= t1).drop_nulls(\"value\")\n    if terminal_rows.is_empty():\n        return None\n    terminal_nav = terminal_rows[-1][\"value\"][0]\n    window_flows = [\n        (r[0], -r[1])\n        for r in flows.select(\"ts\", \"amt\").rows()\n        if r[0] > effective_start\n    ]\n    cashflows = [(effective_start, -opening_nav)] + window_flows + [(t1, terminal_nav)]\n    return xirr_cumulative(cashflows, window_start=effective_start, window_end=t1)\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "type": "stat",
+  "title": "Profit factor",
+  "description": "sum(wins) / |sum(losses)|. >1 means winners outweigh losers in absolute PnL.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "none",
+      "decimals": 2,
+      "color": {
+        "mode": "thresholds"
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "red",
+            "value": null
+          },
+          {
+            "color": "yellow",
+            "value": 1.0
+          },
+          {
+            "color": "green",
+            "value": 2.0
+          }
+        ]
+      }
+    }
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "none",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "text": {
+      "titleSize": 16,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef profit_factor(closures):\n    wins = closures.filter(pl.col(\"realized_pnl\") > 0)\n    losses = closures.filter(pl.col(\"realized_pnl\") < 0)\n    if losses.is_empty():\n        return None\n    sum_losses = float(losses[\"realized_pnl\"].sum())\n    if sum_losses == 0.0:\n        return None\n    return float(wins[\"realized_pnl\"].sum()) / abs(sum_losses)\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

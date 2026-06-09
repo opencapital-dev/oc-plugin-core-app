@@ -1,0 +1,46 @@
+{
+  "type": "stat",
+  "title": "Currently open",
+  "description": "Instruments still open at window_end.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "short",
+      "decimals": 0,
+      "color": {
+        "mode": "fixed",
+        "fixedColor": "blue"
+      }
+    },
+    "overrides": []
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "none",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "text": {
+      "titleSize": 16,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(\n    closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\",\n    cycles=\"cycles{portfolio=\\\"$portfolio_id\\\"} @window\",\n    events='events{portfolio=\\\"$portfolio_id\\\", event_type=\"TRADE\"} @window',\n    instrument=\"instrument{portfolio=\\\"$portfolio_id\\\"} @asof\",\n)\n@metric(output=\"scalar\")\ndef n_currently_open(closures, cycles, events, instrument):\n    pos = positions(closures, cycles, events, instrument)\n    return float(pos.filter(pl.col(\"is_open\") > 0).height)\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

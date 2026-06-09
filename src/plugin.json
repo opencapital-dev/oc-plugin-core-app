@@ -1,0 +1,85 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "app",
+  "name": "Portfolio Admin",
+  "id": "core-app",
+  "backend": true,
+  "executable": "gpx_core-app_v2",
+  "opencapital": {
+    "plugin_id": "core-app",
+    "platform_plugin": false,
+    "logical_views": [
+      { "name": "portfolios_v", "source_table": "public.portfolios" },
+      { "name": "portfolio_per_tick_v", "source_table": "public.portfolio_per_tick" },
+      { "name": "instrument_per_event_v", "source_table": "public.instrument_per_event" },
+      { "name": "instrument_per_tick_v", "source_table": "public.instrument_per_tick" },
+      { "name": "cash_per_tick_v", "source_table": "public.cash_per_tick" },
+      { "name": "closures_per_event_v", "source_table": "public.closures_per_event" },
+      { "name": "cycles_per_event_v", "source_table": "public.cycles_per_event" }
+    ],
+    "query_entities": []
+  },
+  "info": {
+    "keywords": ["portfolio", "trading", "admin"],
+    "description": "Operator console for portfolios, instruments, events, and bulk imports. Required for every workspace.",
+    "author": {
+      "name": "Portfolio management"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "includes": [
+    {
+      "type": "page",
+      "name": "Admin",
+      "path": "/a/%PLUGIN_ID%/admin",
+      "addToNav": true,
+      "defaultNav": true,
+      "icon": "home"
+    },
+    {
+      "type": "page",
+      "name": "Events",
+      "path": "/a/%PLUGIN_ID%/events",
+      "addToNav": true,
+      "icon": "list-ul"
+    },
+    {
+      "type": "page",
+      "name": "Instruments",
+      "path": "/a/%PLUGIN_ID%/instruments",
+      "addToNav": true,
+      "icon": "chart-line"
+    },
+    {
+      "type": "page",
+      "name": "Import",
+      "path": "/a/%PLUGIN_ID%/import",
+      "addToNav": true,
+      "icon": "upload"
+    },
+    {
+      "type": "page",
+      "name": "Portfolios",
+      "path": "/a/%PLUGIN_ID%/portfolios",
+      "addToNav": true,
+      "icon": "folder"
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": ">=12.3.0",
+    "plugins": []
+  },
+  "jsonData": {
+    "pluginId": "",
+    "controlPlaneUrl": "",
+    "gatewayUrl": "",
+    "otelExporterOtlpEndpoint": ""
+  },
+  "secureJsonFields": ["platformToken"]
+}

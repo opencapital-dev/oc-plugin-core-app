@@ -1,0 +1,147 @@
+{
+  "type": "table",
+  "title": "Drawdown episodes",
+  "description": "Each peak \u2192 trough \u2192 (optional) recovery cycle on the cumulative-return curve.",
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "align": "auto",
+        "displayMode": "auto"
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "depth"
+        },
+        "properties": [
+          {
+            "id": "unit",
+            "value": "percentunit"
+          },
+          {
+            "id": "decimals",
+            "value": 2
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "time_to_trough_sec"
+        },
+        "properties": [
+          {
+            "id": "unit",
+            "value": "s"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "time_to_recover_sec"
+        },
+        "properties": [
+          {
+            "id": "unit",
+            "value": "s"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "peak_ts"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Peak"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "trough_ts"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Trough"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "recovery_ts"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Recovered"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "depth"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Depth"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "time_to_trough_sec"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Time to trough"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "time_to_recover_sec"
+        },
+        "properties": [
+          {
+            "id": "displayName",
+            "value": "Time to recover"
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "showHeader": true,
+    "footer": {
+      "show": false
+    }
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "STEP_SEC = 3600 if \"${sample_interval}\" == \"1h\" else 86400\nSTEP_US = STEP_SEC * 1_000_000\n\n@bind(nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\", flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"table\")\ndef drawdown_episodes_panel(nav, flows):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    flow_ts = [r[0] for r in flows.select(\"ts\").rows() if r[0] > effective_start]\n    grid = build_grid(effective_start, t1, STEP_US)\n    cum_series = cumulative_twr(nav, flow_ts, effective_start, grid)\n    if not cum_series:\n        return pl.DataFrame({\n            \"peak_ts\": [], \"trough_ts\": [], \"recovery_ts\": [],\n            \"depth\": [], \"time_to_trough_sec\": [], \"time_to_recover_sec\": [],\n        })\n    cum = [v for _, v in cum_series]\n    episodes = drawdown_episodes(cum, grid)\n    return pl.DataFrame({\n        \"peak_ts\": [ep.peak_ts for ep in episodes],\n        \"trough_ts\": [ep.trough_ts for ep in episodes],\n        \"recovery_ts\": [ep.recovery_ts for ep in episodes],\n        \"depth\": [ep.depth for ep in episodes],\n        \"time_to_trough_sec\": [ep.time_to_trough_sec for ep in episodes],\n        \"time_to_recover_sec\": [ep.time_to_recover_sec for ep in episodes],\n    })\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}

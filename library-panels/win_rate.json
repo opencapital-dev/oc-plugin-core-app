@@ -1,0 +1,63 @@
+{
+  "type": "stat",
+  "title": "Win rate",
+  "description": "n_wins / (n_wins + n_losses). Excludes breakeven (zero-PnL) closures.",
+  "fieldConfig": {
+    "defaults": {
+      "unit": "percentunit",
+      "decimals": 1,
+      "min": 0,
+      "max": 1,
+      "color": {
+        "mode": "thresholds"
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "red",
+            "value": null
+          },
+          {
+            "color": "yellow",
+            "value": 0.5
+          },
+          {
+            "color": "green",
+            "value": 0.6
+          }
+        ]
+      }
+    }
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "none",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+    },
+    "text": {
+      "titleSize": 16,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef win_rate(closures):\n    n_w = closures.filter(pl.col(\"realized_pnl\") > 0).height\n    n_l = closures.filter(pl.col(\"realized_pnl\") < 0).height\n    decisive = n_w + n_l\n    return None if decisive == 0 else n_w / decisive\n"
+    }
+  ],
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  }
+}
