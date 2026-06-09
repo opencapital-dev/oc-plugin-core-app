@@ -7,7 +7,7 @@ import (
 	// mage:import
 	build "github.com/grafana/grafana-plugin-sdk-go/build"
 
-	"github.com/portfolio-management/portfolio-admin-v2/pkg/bundleartifacts"
+	"github.com/portfolio-management/pluginclient/artifacts"
 )
 
 // Default configures the default target.
@@ -18,7 +18,7 @@ var Default = build.BuildAll
 // output.clean wipes dist/ of all but the backend binaries); the SDK build
 // does not copy these non-standard dirs.
 func CopyArtifacts() error {
-	return bundleartifacts.Copy(".")
+	return artifacts.Copy(".")
 }
 
 func init() {
