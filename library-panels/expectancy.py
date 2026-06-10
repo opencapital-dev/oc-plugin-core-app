@@ -1,0 +1,14 @@
+@bind(closures="closures{portfolio=\"$portfolio_id\"} @window")
+@metric(output="scalar")
+def expectancy(closures):
+    n_w = closures.filter(pl.col("realized_pnl") > 0).height
+    n_l = closures.filter(pl.col("realized_pnl") < 0).height
+    decisive = n_w + n_l
+    if decisive == 0:
+        return None
+    wr = n_w / decisive
+    wins = closures.filter(pl.col("realized_pnl") > 0)
+    losses = closures.filter(pl.col("realized_pnl") < 0)
+    aw = float(wins["realized_pnl"].mean()) if not wins.is_empty() else 0.0
+    al = float(losses["realized_pnl"].mean()) if not losses.is_empty() else 0.0
+    return wr * aw + (1 - wr) * al
