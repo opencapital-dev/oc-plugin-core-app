@@ -1,0 +1,262 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "description": "Stacked areas: positive sources (equity, forex, interest, dividends) build up gross P&L (top of positive stack = gross); fees stack below zero. Total net = gross \u2212 fees, overlaid as a line.",
+  "fieldConfig": {
+    "defaults": {
+      "decimals": 0,
+      "unit": "locale",
+      "color": {
+        "mode": "palette-classic"
+      },
+      "custom": {
+        "drawStyle": "line",
+        "lineInterpolation": "smooth",
+        "lineWidth": 1,
+        "fillOpacity": 70,
+        "gradientMode": "opacity",
+        "stacking": {
+          "mode": "normal",
+          "group": "pnl"
+        },
+        "axisPlacement": "auto",
+        "axisCenteredZero": true,
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "showPoints": "never",
+        "pointSize": 0,
+        "spanNulls": true
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Equity (realized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#1F77B4"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Forex (realized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#9467BD"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Equity (unrealized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#7AB9DB"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Forex (unrealized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#C5B0D5"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Interest"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#17BECF"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Dividends"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#2CA02C"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Fees"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#D62728"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Total net"
+        },
+        "properties": [
+          {
+            "id": "custom.stacking",
+            "value": {
+              "mode": "none"
+            }
+          },
+          {
+            "id": "custom.drawStyle",
+            "value": "line"
+          },
+          {
+            "id": "custom.lineWidth",
+            "value": 3
+          },
+          {
+            "id": "custom.lineInterpolation",
+            "value": "smooth"
+          },
+          {
+            "id": "custom.fillOpacity",
+            "value": 0
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "thresholds"
+            }
+          },
+          {
+            "id": "thresholds",
+            "value": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "green",
+                  "value": 0
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "legend": {
+      "calcs": [
+        "lastNotNull",
+        "max",
+        "min"
+      ],
+      "displayMode": "table",
+      "placement": "right",
+      "showLegend": true
+    },
+    "tooltip": {
+      "mode": "multi",
+      "sort": "desc"
+    }
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/portfolio_pnl_breakdown"
+    }
+  ],
+  "title": "P&L breakdown (${base_currency})",
+  "type": "timeseries",
+  "transformations": [
+    {
+      "id": "calculateField",
+      "options": {
+        "mode": "binary",
+        "binary": {
+          "left": "fees_base",
+          "operator": "*",
+          "right": "-1"
+        },
+        "alias": "Fees",
+        "replaceFields": false
+      }
+    },
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "portfolio_id": true,
+          "base_currency": true,
+          "nav_base": true,
+          "equity_value_base": true,
+          "cash_value_base": true,
+          "instrument_count": true,
+          "total_gross_avg_base": true,
+          "fees_base": true
+        },
+        "renameByName": {
+          "realized_equity_avg_base": "Equity (realized)",
+          "realized_forex_avg_base": "Forex (realized)",
+          "unrealized_equity_avg_base": "Equity (unrealized)",
+          "unrealized_forex_avg_base": "Forex (unrealized)",
+          "realized_interest_base": "Interest",
+          "realized_dividends_base": "Dividends",
+          "total_net_avg_base": "Total net"
+        },
+        "indexByName": {}
+      }
+    }
+  ]
+}

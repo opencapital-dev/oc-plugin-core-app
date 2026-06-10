@@ -1,0 +1,87 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "description": "Position-size allocation across instruments held as of the end of the dashboard window. Top 10 instruments by position size (quantity \u00d7 avg cost in base currency); remainder grouped as 'Others'.",
+  "fieldConfig": {
+    "defaults": {
+      "decimals": 0,
+      "unit": "locale",
+      "color": {
+        "mode": "palette-classic"
+      },
+      "custom": {
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        }
+      },
+      "mappings": []
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byRegexp",
+          "options": "^Others"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "text-secondary"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "displayLabels": [
+      "name",
+      "percent"
+    ],
+    "legend": {
+      "calcs": [],
+      "displayMode": "table",
+      "placement": "right",
+      "showLegend": true,
+      "values": [
+        "value",
+        "percent"
+      ]
+    },
+    "pieType": "donut",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": true
+    },
+    "tooltip": {
+      "mode": "single",
+      "sort": "desc"
+    }
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/portfolio_allocation"
+    }
+  ],
+  "title": "Instrument allocation (${base_currency})",
+  "transformations": [
+    {
+      "id": "rowsToFields",
+      "options": {}
+    }
+  ],
+  "type": "piechart"
+}

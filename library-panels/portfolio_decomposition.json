@@ -1,0 +1,165 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "description": "Cash + Equity stacked, NAV overlaid as a line. Stacking shows portfolio composition over time; the NAV line confirms NAV = cash + equity.",
+  "fieldConfig": {
+    "defaults": {
+      "decimals": 0,
+      "unit": "locale",
+      "color": {
+        "mode": "palette-classic"
+      },
+      "custom": {
+        "drawStyle": "line",
+        "lineInterpolation": "smooth",
+        "lineWidth": 1,
+        "fillOpacity": 35,
+        "gradientMode": "opacity",
+        "pointSize": 0,
+        "showPoints": "never",
+        "spanNulls": true,
+        "stacking": {
+          "mode": "normal",
+          "group": "composition"
+        },
+        "axisPlacement": "auto",
+        "axisSoftMin": 0,
+        "scaleDistribution": {
+          "type": "linear"
+        }
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Cash"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#3D85C6"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Equity"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#E69138"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "NAV"
+        },
+        "properties": [
+          {
+            "id": "custom.stacking",
+            "value": {
+              "mode": "none"
+            }
+          },
+          {
+            "id": "custom.drawStyle",
+            "value": "line"
+          },
+          {
+            "id": "custom.lineWidth",
+            "value": 3
+          },
+          {
+            "id": "custom.lineStyle",
+            "value": {
+              "fill": "solid"
+            }
+          },
+          {
+            "id": "custom.fillOpacity",
+            "value": 0
+          },
+          {
+            "id": "custom.gradientMode",
+            "value": "none"
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "rgba(255,255,255,0.95)"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "legend": {
+      "calcs": [
+        "lastNotNull",
+        "min",
+        "max"
+      ],
+      "displayMode": "table",
+      "placement": "right",
+      "showLegend": true
+    },
+    "tooltip": {
+      "mode": "multi",
+      "sort": "desc"
+    }
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/portfolio_decomposition"
+    }
+  ],
+  "title": "Portfolio decomposition (${base_currency})",
+  "type": "timeseries",
+  "transformations": [
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "portfolio_id": true,
+          "base_currency": true,
+          "instrument_count": true,
+          "total_gross_avg_base": true,
+          "total_net_avg_base": true,
+          "realized_equity_avg_base": true,
+          "realized_forex_avg_base": true,
+          "unrealized_equity_avg_base": true,
+          "unrealized_forex_avg_base": true,
+          "realized_interest_base": true,
+          "realized_dividends_base": true,
+          "fees_base": true
+        },
+        "renameByName": {
+          "cash_value_base": "Cash",
+          "equity_value_base": "Equity",
+          "nav_base": "NAV"
+        },
+        "indexByName": {}
+      }
+    }
+  ]
+}

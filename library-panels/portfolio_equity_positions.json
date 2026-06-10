@@ -1,0 +1,403 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "description": "Latest snapshot per instrument. Direction badge shows long/short/flat. PnL columns colored by sign (gradient red\u2192green). Quantity + last price as inline gauges across the row range.",
+  "fieldConfig": {
+    "defaults": {
+      "decimals": 2,
+      "custom": {
+        "align": "right",
+        "cellOptions": {
+          "type": "auto"
+        },
+        "filterable": true,
+        "inspect": false
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "transparent",
+            "value": null
+          }
+        ]
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Instrument"
+        },
+        "properties": [
+          {
+            "id": "custom.align",
+            "value": "left"
+          },
+          {
+            "id": "custom.width",
+            "value": 110
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "auto"
+            }
+          },
+          {
+            "id": "links",
+            "value": [
+              {
+                "title": "Open instrument view",
+                "url": "/d/metrics-instrument?var-portfolio_id=${portfolio_id}&var-base_currency=${base_currency}&var-instrument_id=${__data.fields.Instrument}&${__url_time_range}",
+                "targetBlank": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Direction"
+        },
+        "properties": [
+          {
+            "id": "custom.align",
+            "value": "center"
+          },
+          {
+            "id": "custom.width",
+            "value": 90
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "color-background",
+              "mode": "basic"
+            }
+          },
+          {
+            "id": "mappings",
+            "value": [
+              {
+                "type": "value",
+                "options": {
+                  "long": {
+                    "text": "\u25b2 LONG",
+                    "color": "green",
+                    "index": 0
+                  },
+                  "short": {
+                    "text": "\u25bc SHORT",
+                    "color": "red",
+                    "index": 1
+                  },
+                  "flat": {
+                    "text": "\u2014 FLAT",
+                    "color": "transparent",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Currency"
+        },
+        "properties": [
+          {
+            "id": "custom.align",
+            "value": "center"
+          },
+          {
+            "id": "custom.width",
+            "value": 80
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Quantity"
+        },
+        "properties": [
+          {
+            "id": "decimals",
+            "value": 4
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Avg cost"
+        },
+        "properties": [
+          {
+            "id": "decimals",
+            "value": 4
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Last price"
+        },
+        "properties": [
+          {
+            "id": "decimals",
+            "value": 4
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "color-text"
+            }
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "continuous-BlPu"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Position size (base)"
+        },
+        "properties": [
+          {
+            "id": "decimals",
+            "value": 0
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "gauge",
+              "mode": "gradient"
+            }
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#3D85C6"
+            }
+          },
+          {
+            "id": "unit",
+            "value": "locale"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byRegexp",
+          "options": "^(Realized|Unrealized).*"
+        },
+        "properties": [
+          {
+            "id": "decimals",
+            "value": 0
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "color-background",
+              "mode": "gradient"
+            }
+          },
+          {
+            "id": "thresholds",
+            "value": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "dark-red",
+                  "value": null
+                },
+                {
+                  "color": "transparent",
+                  "value": -0.0001
+                },
+                {
+                  "color": "transparent",
+                  "value": 0
+                },
+                {
+                  "color": "transparent",
+                  "value": 0.0001
+                },
+                {
+                  "color": "dark-green",
+                  "value": 1
+                }
+              ]
+            }
+          },
+          {
+            "id": "unit",
+            "value": "locale"
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Lots"
+        },
+        "properties": [
+          {
+            "id": "decimals",
+            "value": 0
+          },
+          {
+            "id": "custom.width",
+            "value": 60
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "color-text"
+            }
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "text-secondary"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "IRR"
+        },
+        "properties": [
+          {
+            "id": "unit",
+            "value": "percentunit"
+          },
+          {
+            "id": "decimals",
+            "value": 2
+          },
+          {
+            "id": "custom.width",
+            "value": 100
+          },
+          {
+            "id": "custom.cellOptions",
+            "value": {
+              "type": "color-background",
+              "mode": "gradient"
+            }
+          },
+          {
+            "id": "thresholds",
+            "value": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "dark-red",
+                  "value": null
+                },
+                {
+                  "color": "transparent",
+                  "value": -0.0001
+                },
+                {
+                  "color": "transparent",
+                  "value": 0
+                },
+                {
+                  "color": "transparent",
+                  "value": 0.0001
+                },
+                {
+                  "color": "dark-green",
+                  "value": 0.2
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "showHeader": true,
+    "cellHeight": "md",
+    "footer": {
+      "show": true,
+      "reducer": [
+        "sum"
+      ],
+      "fields": [
+        "Position size (base)",
+        "Realized equity (native)",
+        "Realized equity (base)",
+        "Realized forex (base)",
+        "Unrealized equity (native)",
+        "Unrealized equity (base)",
+        "Unrealized forex (base)"
+      ]
+    },
+    "sortBy": [
+      {
+        "displayName": "Position size (base)",
+        "desc": true
+      }
+    ]
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/portfolio_equity_positions"
+    }
+  ],
+  "title": "Equity positions \u2014 latest per instrument",
+  "type": "table",
+  "transformations": [
+    {
+      "id": "organize",
+      "options": {
+        "renameByName": {
+          "instrument_id": "Instrument",
+          "direction": "Direction",
+          "quantity": "Quantity",
+          "currency": "Currency",
+          "avg_cost_avg_native": "Avg cost",
+          "last_price": "Last price",
+          "realized_equity_avg_base": "Realized equity (base)",
+          "unrealized_equity_avg_base": "Unrealized equity (base)",
+          "lot_count": "Lots",
+          "portfolio_id": "portfolio_id",
+          "avg_cost_avg_base": "avg_cost_avg_base",
+          "ts": "ts",
+          "realized_equity_avg_native": "Realized equity (native)",
+          "realized_forex_avg_base": "Realized forex (base)",
+          "unrealized_equity_avg_native": "Unrealized equity (native)",
+          "unrealized_forex_avg_base": "Unrealized forex (base)",
+          "position_size_base": "Position size (base)"
+        }
+      }
+    }
+  ]
+}

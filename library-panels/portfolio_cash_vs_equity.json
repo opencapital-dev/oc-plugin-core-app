@@ -1,0 +1,117 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "description": "Cash vs equity split of portfolio NAV as of the end of the dashboard window.",
+  "fieldConfig": {
+    "defaults": {
+      "decimals": 0,
+      "unit": "locale",
+      "color": {
+        "mode": "palette-classic"
+      },
+      "mappings": []
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Cash"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#3D85C6"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Equity"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#E69138"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "displayLabels": [
+      "name",
+      "percent"
+    ],
+    "legend": {
+      "calcs": [],
+      "displayMode": "table",
+      "placement": "right",
+      "showLegend": true,
+      "values": [
+        "value",
+        "percent"
+      ]
+    },
+    "pieType": "donut",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "",
+      "values": true
+    },
+    "tooltip": {
+      "mode": "single",
+      "sort": "desc"
+    }
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/portfolio_cash_vs_equity"
+    }
+  ],
+  "title": "Cash vs equity (${base_currency})",
+  "transformations": [
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "portfolio_id": true,
+          "ts": true,
+          "base_currency": true,
+          "nav_base": true,
+          "instrument_count": true,
+          "total_gross_avg_base": true,
+          "total_net_avg_base": true,
+          "realized_equity_avg_base": true,
+          "realized_forex_avg_base": true,
+          "unrealized_equity_avg_base": true,
+          "unrealized_forex_avg_base": true,
+          "realized_interest_base": true,
+          "realized_dividends_base": true,
+          "fees_base": true
+        },
+        "renameByName": {
+          "cash_value_base": "Cash",
+          "equity_value_base": "Equity"
+        },
+        "indexByName": {}
+      }
+    }
+  ],
+  "type": "piechart"
+}
