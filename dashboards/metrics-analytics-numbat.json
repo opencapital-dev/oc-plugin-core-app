@@ -24,7 +24,7 @@
         },
         "query": {
           "refId": "V",
-          "source": "@bind(rows=\"portfolios{}\")\n@metric(output=\"table\")\ndef portfolios(rows):\n    return rows\n"
+          "ref": "core-app/portfolios"
         },
         "refresh": 1,
         "regex": "",
