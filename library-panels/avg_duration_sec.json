@@ -35,7 +35,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef avg_duration_sec(closures):\n    return None if closures.is_empty() else float(closures[\"holding_seconds\"].mean())\n"
+      "ref": "core-app/avg_duration_sec"
     }
   ],
   "datasource": {

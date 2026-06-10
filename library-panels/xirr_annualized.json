@@ -55,7 +55,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\", flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef xirr_annualized(nav, flows):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    opening_nav = asof(nav, effective_start)\n    if opening_nav is None:\n        return None\n    terminal_rows = nav.filter(pl.col(\"ts\") <= t1).drop_nulls(\"value\")\n    if terminal_rows.is_empty():\n        return None\n    terminal_nav = terminal_rows[-1][\"value\"][0]\n    window_flows = [\n        (r[0], -r[1])\n        for r in flows.select(\"ts\", \"amt\").rows()\n        if r[0] > effective_start\n    ]\n    cashflows = [(effective_start, -opening_nav)] + window_flows + [(t1, terminal_nav)]\n    return xirr(cashflows)\n"
+      "ref": "core-app/xirr_annualized"
     }
   ],
   "datasource": {

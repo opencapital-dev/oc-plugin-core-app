@@ -36,7 +36,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(\n    closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\",\n    cycles=\"cycles{portfolio=\\\"$portfolio_id\\\"} @window\",\n    events='events{portfolio=\\\"$portfolio_id\\\", event_type=\"TRADE\"} @window',\n    instrument=\"instrument{portfolio=\\\"$portfolio_id\\\"} @asof\",\n)\n@metric(output=\"scalar\")\ndef n_instruments_traded(closures, cycles, events, instrument):\n    pos = positions(closures, cycles, events, instrument)\n    return float(pos.height)\n"
+      "ref": "core-app/n_instruments_traded"
     }
   ],
   "datasource": {

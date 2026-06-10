@@ -56,7 +56,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\", flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef total_return(nav, flows):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    flow_ts = [r[0] for r in flows.select(\"ts\").rows() if r[0] > effective_start]\n    grid = build_grid(effective_start, t1, \"1d\")\n    cum = cumulative_twr(nav, flow_ts, effective_start, grid)\n    return cum[-1][1] if cum else None\n"
+      "ref": "core-app/total_return"
     }
   ],
   "title": "Total Return (TWR)",

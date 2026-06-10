@@ -53,7 +53,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef win_rate(closures):\n    n_w = closures.filter(pl.col(\"realized_pnl\") > 0).height\n    n_l = closures.filter(pl.col(\"realized_pnl\") < 0).height\n    decisive = n_w + n_l\n    return None if decisive == 0 else n_w / decisive\n"
+      "ref": "core-app/win_rate"
     }
   ],
   "datasource": {

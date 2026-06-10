@@ -36,7 +36,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(cycles=\"cycles{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_re_entries(cycles):\n    if cycles.is_empty():\n        return 0.0\n    return float(cycles.filter(pl.col(\"was_re_entry\") > 0).height)\n"
+      "ref": "core-app/n_re_entries"
     }
   ],
   "datasource": {

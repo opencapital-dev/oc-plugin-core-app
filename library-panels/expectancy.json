@@ -51,7 +51,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef expectancy(closures):\n    n_w = closures.filter(pl.col(\"realized_pnl\") > 0).height\n    n_l = closures.filter(pl.col(\"realized_pnl\") < 0).height\n    decisive = n_w + n_l\n    if decisive == 0:\n        return None\n    wr = n_w / decisive\n    wins = closures.filter(pl.col(\"realized_pnl\") > 0)\n    losses = closures.filter(pl.col(\"realized_pnl\") < 0)\n    aw = float(wins[\"realized_pnl\"].mean()) if not wins.is_empty() else 0.0\n    al = float(losses[\"realized_pnl\"].mean()) if not losses.is_empty() else 0.0\n    return wr * aw + (1 - wr) * al\n"
+      "ref": "core-app/expectancy"
     }
   ],
   "datasource": {

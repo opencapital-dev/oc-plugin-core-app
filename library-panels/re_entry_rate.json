@@ -44,7 +44,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(cycles=\"cycles{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef re_entry_rate(cycles):\n    n = cycles.height\n    if n == 0:\n        return float(\"nan\")\n    re_entries = cycles.filter(pl.col(\"was_re_entry\") > 0).height\n    return re_entries / n\n"
+      "ref": "core-app/re_entry_rate"
     }
   ],
   "datasource": {

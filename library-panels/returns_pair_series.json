@@ -79,7 +79,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "STEP_SEC = 3600 if \"${sample_interval}\" == \"1h\" else 86400\nSTEP_US = STEP_SEC * 1_000_000\n\n@bind(\n    nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\",\n    flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\",\n    bench=\"price{portfolio=\\\"$portfolio_id\\\", instrument=\\\"$benchmark_ids\\\"}[ts, value] @asof\",\n)\n@metric(output=\"series\")\ndef returns_pair_series(nav, flows, bench):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    flow_ts = [r[0] for r in flows.select(\"ts\").rows() if r[0] > effective_start]\n    grid = build_grid(effective_start, t1, STEP_US)\n    cum_p = cumulative_twr(nav, flow_ts, effective_start, grid)\n    bench_vals = sample_at_grid(bench, grid)\n    cum_b_vals = cum_returns_from_navs(bench_vals)\n    cum_b = list(zip([ts for ts, _ in cum_p], cum_b_vals))\n    r_p_pairs = cumulative_to_period_returns(cum_p)\n    r_b_pairs = cumulative_to_period_returns(cum_b)\n    rows = [\n        (ts, rp, rb)\n        for (ts, rp), (_, rb) in zip(r_p_pairs[1:], r_b_pairs[1:])\n    ]\n    return pl.DataFrame(\n        {\"ts\": [r[0] for r in rows], \"r_p\": [r[1] for r in rows], \"r_b\": [r[2] for r in rows]},\n        schema={\"ts\": pl.Int64, \"r_p\": pl.Float64, \"r_b\": pl.Float64},\n    )\n"
+      "ref": "core-app/returns_pair_series"
     }
   ],
   "datasource": {

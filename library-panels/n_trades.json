@@ -43,7 +43,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_trades(closures):\n    return float(closures.height)\n"
+      "ref": "core-app/n_trades"
     }
   ],
   "datasource": {

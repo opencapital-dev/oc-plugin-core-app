@@ -51,7 +51,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef profit_factor(closures):\n    wins = closures.filter(pl.col(\"realized_pnl\") > 0)\n    losses = closures.filter(pl.col(\"realized_pnl\") < 0)\n    if losses.is_empty():\n        return None\n    sum_losses = float(losses[\"realized_pnl\"].sum())\n    if sum_losses == 0.0:\n        return None\n    return float(wins[\"realized_pnl\"].sum()) / abs(sum_losses)\n"
+      "ref": "core-app/profit_factor"
     }
   ],
   "datasource": {

@@ -143,7 +143,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_wins(closures):\n    return float(closures.filter(pl.col(\"realized_pnl\") > 0).height)\n"
+      "ref": "core-app/n_wins"
     },
     {
       "refId": "B",
@@ -151,7 +151,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_losses(closures):\n    return float(closures.filter(pl.col(\"realized_pnl\") < 0).height)\n"
+      "ref": "core-app/n_losses"
     },
     {
       "refId": "C",
@@ -159,7 +159,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "@bind(closures=\"closures{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef n_zero(closures):\n    return float(closures.filter(pl.col(\"realized_pnl\") == 0).height)\n"
+      "ref": "core-app/n_zero"
     }
   ],
   "datasource": {

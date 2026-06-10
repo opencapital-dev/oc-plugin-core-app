@@ -51,7 +51,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "STEP_SEC = 3600 if \"${sample_interval}\" == \"1h\" else 86400\nSTEP_US = STEP_SEC * 1_000_000\n\n@bind(nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\", flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"scalar\")\ndef current_drawdown_panel(nav, flows):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    flow_ts = [r[0] for r in flows.select(\"ts\").rows() if r[0] > effective_start]\n    grid = build_grid(effective_start, t1, STEP_US)\n    cum_series = cumulative_twr(nav, flow_ts, effective_start, grid)\n    if not cum_series:\n        return None\n    cum = [v for _, v in cum_series]\n    return current_drawdown(cum)\n"
+      "ref": "core-app/current_drawdown"
     }
   ],
   "datasource": {

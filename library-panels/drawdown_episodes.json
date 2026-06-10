@@ -137,7 +137,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "source": "STEP_SEC = 3600 if \"${sample_interval}\" == \"1h\" else 86400\nSTEP_US = STEP_SEC * 1_000_000\n\n@bind(nav=\"nav{portfolio=\\\"$portfolio_id\\\"} @asof\", flows=\"flows{portfolio=\\\"$portfolio_id\\\"} @window\")\n@metric(output=\"table\")\ndef drawdown_episodes_panel(nav, flows):\n    t0, t1 = window\n    effective_start = t0 if nav.is_empty() else max(t0, nav[\"ts\"][0])\n    flow_ts = [r[0] for r in flows.select(\"ts\").rows() if r[0] > effective_start]\n    grid = build_grid(effective_start, t1, STEP_US)\n    cum_series = cumulative_twr(nav, flow_ts, effective_start, grid)\n    if not cum_series:\n        return pl.DataFrame({\n            \"peak_ts\": [], \"trough_ts\": [], \"recovery_ts\": [],\n            \"depth\": [], \"time_to_trough_sec\": [], \"time_to_recover_sec\": [],\n        })\n    cum = [v for _, v in cum_series]\n    episodes = drawdown_episodes(cum, grid)\n    return pl.DataFrame({\n        \"peak_ts\": [ep.peak_ts for ep in episodes],\n        \"trough_ts\": [ep.trough_ts for ep in episodes],\n        \"recovery_ts\": [ep.recovery_ts for ep in episodes],\n        \"depth\": [ep.depth for ep in episodes],\n        \"time_to_trough_sec\": [ep.time_to_trough_sec for ep in episodes],\n        \"time_to_recover_sec\": [ep.time_to_recover_sec for ep in episodes],\n    })\n"
+      "ref": "core-app/drawdown_episodes"
     }
   ],
   "datasource": {
