@@ -1,0 +1,224 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "description": "Stacked P&L components for this instrument: realized vs unrealized, equity vs forex. Net (sum of all four) overlaid as a line \u2014 green when positive, red when negative.",
+  "fieldConfig": {
+    "defaults": {
+      "decimals": 0,
+      "unit": "locale",
+      "color": {
+        "mode": "palette-classic"
+      },
+      "custom": {
+        "drawStyle": "line",
+        "lineInterpolation": "smooth",
+        "lineWidth": 1,
+        "fillOpacity": 70,
+        "gradientMode": "opacity",
+        "stacking": {
+          "mode": "normal",
+          "group": "pnl"
+        },
+        "axisPlacement": "auto",
+        "axisCenteredZero": true,
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "showPoints": "never",
+        "pointSize": 0,
+        "spanNulls": true
+      }
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Equity (realized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#1F77B4"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Forex (realized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#9467BD"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Equity (unrealized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#7AB9DB"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Forex (unrealized)"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "#C5B0D5"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Total net"
+        },
+        "properties": [
+          {
+            "id": "custom.stacking",
+            "value": {
+              "mode": "none"
+            }
+          },
+          {
+            "id": "custom.drawStyle",
+            "value": "line"
+          },
+          {
+            "id": "custom.lineWidth",
+            "value": 3
+          },
+          {
+            "id": "custom.lineInterpolation",
+            "value": "smooth"
+          },
+          {
+            "id": "custom.fillOpacity",
+            "value": 0
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "thresholds"
+            }
+          },
+          {
+            "id": "thresholds",
+            "value": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "green",
+                  "value": 0
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "legend": {
+      "calcs": [
+        "lastNotNull",
+        "max",
+        "min"
+      ],
+      "displayMode": "table",
+      "placement": "right",
+      "showLegend": true
+    },
+    "tooltip": {
+      "mode": "multi",
+      "sort": "desc"
+    }
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/instrument_pnl_breakdown"
+    }
+  ],
+  "title": "P&L breakdown (${base_currency})",
+  "type": "timeseries",
+  "transformations": [
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "portfolio_id": true,
+          "instrument_id": true,
+          "direction": true,
+          "quantity": true,
+          "currency": true,
+          "avg_cost_avg_native": true,
+          "avg_cost_avg_base": true,
+          "last_price": true,
+          "realized_equity_avg_native": true,
+          "unrealized_equity_avg_native": true,
+          "lot_count": true,
+          "position_size_base": true
+        },
+        "renameByName": {},
+        "indexByName": {}
+      }
+    },
+    {
+      "id": "calculateField",
+      "options": {
+        "mode": "reduceRow",
+        "reduce": {
+          "reducer": "sum"
+        },
+        "alias": "Total net",
+        "replaceFields": false
+      }
+    },
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {},
+        "renameByName": {
+          "realized_equity_avg_base": "Equity (realized)",
+          "realized_forex_avg_base": "Forex (realized)",
+          "unrealized_equity_avg_base": "Equity (unrealized)",
+          "unrealized_forex_avg_base": "Forex (unrealized)"
+        },
+        "indexByName": {}
+      }
+    }
+  ]
+}

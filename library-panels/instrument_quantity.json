@@ -1,0 +1,47 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "decimals": 4,
+      "unit": "short",
+      "color": {
+        "mode": "fixed",
+        "fixedColor": "blue"
+      }
+    },
+    "overrides": []
+  },
+  "options": {
+    "colorMode": "value",
+    "graphMode": "area",
+    "justifyMode": "auto",
+    "orientation": "auto",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "quantity",
+      "values": false
+    },
+    "text": {
+      "titleSize": 20,
+      "valueSize": 32
+    },
+    "textMode": "auto"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/instrument_quantity"
+    }
+  ],
+  "title": "Quantity",
+  "type": "stat"
+}

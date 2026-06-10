@@ -18,302 +18,69 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": {
-        "type": "core-datasource",
-        "uid": "core-datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "long": {
-                  "text": "\u25b2 LONG",
-                  "color": "green",
-                  "index": 0
-                },
-                "short": {
-                  "text": "\u25bc SHORT",
-                  "color": "red",
-                  "index": 1
-                },
-                "flat": {
-                  "text": "\u2014 FLAT",
-                  "color": "text",
-                  "index": 2
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "text",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
+      "id": 1,
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 0,
         "y": 0
       },
-      "id": 1,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "direction",
-          "values": false
-        },
-        "text": {
-          "titleSize": 20,
-          "valueSize": 32
-        },
-        "textMode": "value"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "core-datasource",
-            "uid": "core-datasource"
-          },
-          "refId": "A",
-          "source": "@bind(rows=\"instrument{portfolio=\\\"${portfolio_id}\\\", instrument=\\\"${instrument_id}\\\"} @latest\")\n@metric(output=\"table\")\ndef passthrough(rows):\n    return rows\n"
-        }
-      ],
-      "title": "Direction",
-      "type": "stat"
+      "libraryPanel": {
+        "uid": "core-app-instrument_direction",
+        "name": "core-app/instrument_direction"
+      }
     },
     {
-      "datasource": {
-        "type": "core-datasource",
-        "uid": "core-datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 4,
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
-        },
-        "overrides": []
-      },
+      "id": 2,
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 4,
         "y": 0
       },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "quantity",
-          "values": false
-        },
-        "text": {
-          "titleSize": 20,
-          "valueSize": 32
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "core-datasource",
-            "uid": "core-datasource"
-          },
-          "refId": "A",
-          "source": "@bind(rows=\"instrument{portfolio=\\\"${portfolio_id}\\\", instrument=\\\"${instrument_id}\\\"} @asof\")\n@metric(output=\"table\")\ndef passthrough(rows):\n    return rows\n"
-        }
-      ],
-      "title": "Quantity",
-      "type": "stat"
+      "libraryPanel": {
+        "uid": "core-app-instrument_quantity",
+        "name": "core-app/instrument_quantity"
+      }
     },
     {
-      "datasource": {
-        "type": "core-datasource",
-        "uid": "core-datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 4,
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
-        },
-        "overrides": []
-      },
+      "id": 3,
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 8,
         "y": 0
       },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "avg_cost_avg_native",
-          "values": false
-        },
-        "text": {
-          "titleSize": 20,
-          "valueSize": 32
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "core-datasource",
-            "uid": "core-datasource"
-          },
-          "refId": "A",
-          "source": "@bind(rows=\"instrument{portfolio=\\\"${portfolio_id}\\\", instrument=\\\"${instrument_id}\\\"} @asof\")\n@metric(output=\"table\")\ndef passthrough(rows):\n    return rows\n"
-        }
-      ],
-      "title": "Avg cost (native)",
-      "type": "stat"
+      "libraryPanel": {
+        "uid": "core-app-instrument_avg_cost",
+        "name": "core-app/instrument_avg_cost"
+      }
     },
     {
-      "datasource": {
-        "type": "core-datasource",
-        "uid": "core-datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 4,
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
-        },
-        "overrides": []
-      },
+      "id": 4,
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 12,
         "y": 0
       },
-      "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "last_price",
-          "values": false
-        },
-        "text": {
-          "titleSize": 20,
-          "valueSize": 32
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "core-datasource",
-            "uid": "core-datasource"
-          },
-          "refId": "A",
-          "source": "@bind(rows=\"instrument{portfolio=\\\"${portfolio_id}\\\", instrument=\\\"${instrument_id}\\\"} @asof\")\n@metric(output=\"table\")\ndef passthrough(rows):\n    return rows\n"
-        }
-      ],
-      "title": "Last price",
-      "type": "stat"
+      "libraryPanel": {
+        "uid": "core-app-instrument_last_price",
+        "name": "core-app/instrument_last_price"
+      }
     },
     {
-      "datasource": {
-        "type": "core-datasource",
-        "uid": "core-datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 0,
-          "unit": "locale",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
-        },
-        "overrides": []
-      },
+      "id": 5,
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 16,
         "y": 0
       },
-      "id": 5,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "position_size_base",
-          "values": false
-        },
-        "text": {
-          "titleSize": 20,
-          "valueSize": 32
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "core-datasource",
-            "uid": "core-datasource"
-          },
-          "refId": "A",
-          "source": "@bind(rows=\"instrument{portfolio=\\\"${portfolio_id}\\\", instrument=\\\"${instrument_id}\\\"} @asof\")\n@metric(output=\"table\")\ndef passthrough(rows):\n    return rows\n"
-        }
-      ],
-      "title": "Position size (${base_currency})",
-      "type": "stat"
+      "libraryPanel": {
+        "uid": "core-app-instrument_position_size",
+        "name": "core-app/instrument_position_size"
+      }
     },
     {
       "datasource": {
@@ -373,388 +140,30 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "core-datasource",
-        "uid": "core-datasource"
-      },
-      "description": "Quantity (step line, left axis) and last price (smooth, right axis). Quantity changes only on trades; price ticks on every mark.",
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 4,
-          "unit": "short",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "pointSize": 0,
-            "showPoints": "never",
-            "spanNulls": true,
-            "axisPlacement": "auto",
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Quantity"
-            },
-            "properties": [
-              {
-                "id": "custom.lineInterpolation",
-                "value": "stepAfter"
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "left"
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": "Quantity"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#3D85C6"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 15
-              },
-              {
-                "id": "custom.gradientMode",
-                "value": "opacity"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Last price"
-            },
-            "properties": [
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": "Price"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#E69138"
-                }
-              }
-            ]
-          }
-        ]
-      },
+      "id": 10,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
         "y": 6
       },
-      "id": 10,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "min",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "core-datasource",
-            "uid": "core-datasource"
-          },
-          "refId": "A",
-          "source": "@bind(rows=\"instrument{portfolio=\\\"${portfolio_id}\\\", instrument=\\\"${instrument_id}\\\"} @asof\")\n@metric(output=\"table\")\ndef passthrough(rows):\n    return rows\n"
-        }
-      ],
-      "title": "Quantity & price",
-      "type": "timeseries",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "portfolio_id": true,
-              "instrument_id": true,
-              "direction": true,
-              "currency": true,
-              "avg_cost_avg_native": true,
-              "avg_cost_avg_base": true,
-              "realized_equity_avg_native": true,
-              "realized_equity_avg_base": true,
-              "realized_forex_avg_base": true,
-              "unrealized_equity_avg_native": true,
-              "unrealized_equity_avg_base": true,
-              "unrealized_forex_avg_base": true,
-              "lot_count": true,
-              "position_size_base": true
-            },
-            "renameByName": {
-              "quantity": "Quantity",
-              "last_price": "Last price"
-            },
-            "indexByName": {}
-          }
-        }
-      ]
+      "libraryPanel": {
+        "uid": "core-app-instrument_quantity_price",
+        "name": "core-app/instrument_quantity_price"
+      }
     },
     {
-      "datasource": {
-        "type": "core-datasource",
-        "uid": "core-datasource"
-      },
-      "description": "Stacked P&L components for this instrument: realized vs unrealized, equity vs forex. Net (sum of all four) overlaid as a line \u2014 green when positive, red when negative.",
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 0,
-          "unit": "locale",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "fillOpacity": 70,
-            "gradientMode": "opacity",
-            "stacking": {
-              "mode": "normal",
-              "group": "pnl"
-            },
-            "axisPlacement": "auto",
-            "axisCenteredZero": true,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "pointSize": 0,
-            "spanNulls": true
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Equity (realized)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#1F77B4"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Forex (realized)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#9467BD"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Equity (unrealized)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#7AB9DB"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Forex (unrealized)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#C5B0D5"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Total net"
-            },
-            "properties": [
-              {
-                "id": "custom.stacking",
-                "value": {
-                  "mode": "none"
-                }
-              },
-              {
-                "id": "custom.drawStyle",
-                "value": "line"
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 3
-              },
-              {
-                "id": "custom.lineInterpolation",
-                "value": "smooth"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "thresholds"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": null
-                    },
-                    {
-                      "color": "green",
-                      "value": 0
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
+      "id": 11,
       "gridPos": {
         "h": 10,
         "w": 24,
         "x": 0,
         "y": 14
       },
-      "id": 11,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "core-datasource",
-            "uid": "core-datasource"
-          },
-          "refId": "A",
-          "source": "@bind(rows=\"instrument{portfolio=\\\"${portfolio_id}\\\", instrument=\\\"${instrument_id}\\\"} @asof\")\n@metric(output=\"table\")\ndef passthrough(rows):\n    return rows\n"
-        }
-      ],
-      "title": "P&L breakdown (${base_currency})",
-      "type": "timeseries",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "portfolio_id": true,
-              "instrument_id": true,
-              "direction": true,
-              "quantity": true,
-              "currency": true,
-              "avg_cost_avg_native": true,
-              "avg_cost_avg_base": true,
-              "last_price": true,
-              "realized_equity_avg_native": true,
-              "unrealized_equity_avg_native": true,
-              "lot_count": true,
-              "position_size_base": true
-            },
-            "renameByName": {},
-            "indexByName": {}
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "mode": "reduceRow",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "alias": "Total net",
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "renameByName": {
-              "realized_equity_avg_base": "Equity (realized)",
-              "realized_forex_avg_base": "Forex (realized)",
-              "unrealized_equity_avg_base": "Equity (unrealized)",
-              "unrealized_forex_avg_base": "Forex (unrealized)"
-            },
-            "indexByName": {}
-          }
-        }
-      ]
+      "libraryPanel": {
+        "uid": "core-app-instrument_pnl_breakdown",
+        "name": "core-app/instrument_pnl_breakdown"
+      }
     }
   ],
   "refresh": "10s",

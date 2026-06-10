@@ -1,0 +1,75 @@
+{
+  "datasource": {
+    "type": "core-datasource",
+    "uid": "core-datasource"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "color": {
+        "mode": "thresholds"
+      },
+      "mappings": [
+        {
+          "type": "value",
+          "options": {
+            "long": {
+              "text": "\u25b2 LONG",
+              "color": "green",
+              "index": 0
+            },
+            "short": {
+              "text": "\u25bc SHORT",
+              "color": "red",
+              "index": 1
+            },
+            "flat": {
+              "text": "\u2014 FLAT",
+              "color": "text",
+              "index": 2
+            }
+          }
+        }
+      ],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "text",
+            "value": null
+          }
+        ]
+      }
+    },
+    "overrides": []
+  },
+  "options": {
+    "colorMode": "background",
+    "graphMode": "none",
+    "justifyMode": "center",
+    "orientation": "auto",
+    "reduceOptions": {
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": "direction",
+      "values": false
+    },
+    "text": {
+      "titleSize": 20,
+      "valueSize": 32
+    },
+    "textMode": "value"
+  },
+  "targets": [
+    {
+      "refId": "A",
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "ref": "core-app/instrument_direction"
+    }
+  ],
+  "title": "Direction",
+  "type": "stat"
+}
