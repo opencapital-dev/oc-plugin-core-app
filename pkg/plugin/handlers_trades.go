@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/portfolio-management/pluginclient"
+	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 // TradeCreate is the POST /trades body. The gateway injects org_id +

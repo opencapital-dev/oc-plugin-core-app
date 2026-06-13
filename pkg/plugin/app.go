@@ -9,7 +9,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/resource/httpadapter"
 
-	"github.com/portfolio-management/pluginclient"
+	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 var (

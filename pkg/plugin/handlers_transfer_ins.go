@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/portfolio-management/pluginclient"
+	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 type TransferInCreate struct {

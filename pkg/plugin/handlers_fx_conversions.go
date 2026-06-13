@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/portfolio-management/pluginclient"
+	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 const fxRateRelativeTolerance = 1e-4
