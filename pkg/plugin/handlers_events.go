@@ -3,7 +3,7 @@ package plugin
 import (
 	"net/http"
 
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
+	"github.com/opencapital-dev/oc-plugin-sdk/pluginclient"
 )
 
 func (a *App) registerEventRoutes(mux *http.ServeMux) {

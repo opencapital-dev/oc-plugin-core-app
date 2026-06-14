@@ -5,7 +5,7 @@ go 1.26.3
 require (
 	github.com/google/uuid v1.6.0
 	github.com/grafana/grafana-plugin-sdk-go v0.292.1
-	github.com/ignacioballester/oc-plugin-sdk v0.1.0
+	github.com/opencapital-dev/oc-plugin-sdk v0.1.1
 	go.opentelemetry.io/otel/trace v1.43.0
 )
 

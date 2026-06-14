@@ -7,7 +7,7 @@ import (
 	// mage:import
 	build "github.com/grafana/grafana-plugin-sdk-go/build"
 
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient/artifacts"
+	"github.com/opencapital-dev/oc-plugin-sdk/pluginclient/artifacts"
 )
 
 // Default configures the default target.
