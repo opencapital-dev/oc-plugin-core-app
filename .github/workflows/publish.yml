@@ -57,7 +57,7 @@ jobs:
         run: |
           cp /tmp/backends/*/gpx_* dist/
           ls -la dist/
-      - uses: opencapital-dev/oc-plugin-publish-action
+      - uses: opencapital-dev/oc-plugin-publish-action@v1
         with:
           dir: .
           id: core-app
