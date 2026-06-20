@@ -60,10 +60,9 @@ func (a *App) dispatchPortfolios(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) dispatchPortfolioByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
-		respondErr(w, http.StatusNotImplemented, "portfolio delete not implemented in v6")
+		respondErr(w, http.StatusNotImplemented, "portfolio delete not implemented")
 		return
 	}
-	w.Header().Set("Allow", "DELETE")
 	respondErr(w, http.StatusMethodNotAllowed, "method not allowed")
 }
 
@@ -79,10 +78,9 @@ func (a *App) dispatchInstruments(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) dispatchInstrumentByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
-		respondErr(w, http.StatusNotImplemented, "instrument delete not implemented in v6")
+		respondErr(w, http.StatusNotImplemented, "instrument delete not implemented")
 		return
 	}
-	w.Header().Set("Allow", "DELETE")
 	respondErr(w, http.StatusMethodNotAllowed, "method not allowed")
 }
 
@@ -178,8 +176,15 @@ func (a *App) handleListInstruments(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	// instruments_catalog columns available: instrument_id, kind,
+	// contract_multiplier, currency, base_currency. Fields sector,
+	// subindustry, underlying_id, strike, expiry_date, option_type do not
+	// exist in the view and remain null in the response (frontend type
+	// declares them nullable).
 	res, err := a.client.Query(ctx,
-		"SELECT instrument_id, kind, contract_multiplier FROM instruments_catalog WHERE portfolio_id = $1",
+		`SELECT instrument_id, kind, contract_multiplier, currency, base_currency
+		   FROM instruments_catalog
+		  WHERE portfolio_id = $1`,
 		portfolioID,
 	)
 	if err != nil {
@@ -188,26 +193,45 @@ func (a *App) handleListInstruments(w http.ResponseWriter, r *http.Request) {
 	}
 	out := make([]InstrumentEntity, 0, len(res.Rows))
 	for _, row := range res.Rows {
-		if len(row) < 3 {
+		if len(row) < 5 {
 			continue
 		}
 		instrID, _ := row[0].(string)
 		kind, _ := row[1].(string)
-		var cm *float64
-		switch v := row[2].(type) {
-		case float64:
-			cm = &v
-		case float32:
-			f := float64(v)
-			cm = &f
-		}
+		cm := asFloat64Ptr(row[2])
+		currency := asStringPtr(row[3])
+		baseCcy := asStringPtr(row[4])
 		out = append(out, InstrumentEntity{
 			InstrumentID:       instrID,
 			Kind:               kind,
 			ContractMultiplier: cm,
+			Currency:           currency,
+			BaseCurrency:       baseCcy,
 		})
 	}
 	respondJSON(w, http.StatusOK, out)
+}
+
+// asFloat64Ptr converts a pgx numeric value to *float64, returning nil for
+// SQL NULL or unexpected types.
+func asFloat64Ptr(v any) *float64 {
+	switch x := v.(type) {
+	case float64:
+		return &x
+	case float32:
+		f := float64(x)
+		return &f
+	}
+	return nil
+}
+
+// asStringPtr converts a pgx text value to *string, returning nil for SQL NULL.
+func asStringPtr(v any) *string {
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return nil
+	}
+	return &s
 }
 
 // --- helpers ---------------------------------------------------------------
