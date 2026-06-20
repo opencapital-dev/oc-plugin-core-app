@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"strings"
-
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 type CashflowCreate struct {
@@ -58,6 +56,10 @@ func (a *App) handleCreateCashflow(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, out)
 }
 
+// handleCashflowsBulk publishes cashflows one at a time. The SDK exposes no
+// transaction API, so an error mid-batch leaves a partial insert. Callers
+// should treat failures as requiring idempotent retry using the same cashflow_id
+// values.
 func (a *App) handleCashflowsBulk(w http.ResponseWriter, r *http.Request) {
 	if !methodGuard(w, r, http.MethodPost) {
 		return
@@ -70,12 +72,6 @@ func (a *App) handleCashflowsBulk(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	// Per-event balance pre-validation moved to the gateway / RW
-	// downstream — the plugin no longer holds a RisingWave handle
-	// dedicated to debit checks. The gateway sees the new event under
-	// the verified org_id and the RW MVs reject overdrafts via the
-	// existing cash_per_tick guard. Surfacing that as a 400 round-trip
-	// to the UI is a gateway concern, not plugin code.
 	out := make([]CashflowOut, 0, len(body.Cashflows))
 	for _, c := range body.Cashflows {
 		o, err := a.publishCashflow(ctx, c)
@@ -105,18 +101,10 @@ func (a *App) publishCashflow(ctx context.Context, body CashflowCreate) (Cashflo
 	if err != nil {
 		return CashflowOut{}, err
 	}
-	result, err := a.client.PublishPortfolioEvent(ctx, "cashflows", pluginclient.PortfolioEventBody{
-		SourceID:    id,
-		PortfolioID: body.PortfolioID,
-		BusinessTs:  eventTs,
-		Payload:     payloadStr,
-	})
+	// Cashflows have no instrument_id.
+	err = a.insertEvent(ctx, "CASHFLOW", id, body.PortfolioID, nil, eventTs, payloadStr)
 	if err != nil {
 		return CashflowOut{}, err
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	return CashflowOut{
 		PortfolioID:   body.PortfolioID,
@@ -126,6 +114,6 @@ func (a *App) publishCashflow(ctx context.Context, body CashflowCreate) (Cashflo
 		Currency:      strings.ToUpper(body.Currency),
 		EventTs:       eventTs,
 		ObservationID: a.newID(),
-		GatewayOffset: offset,
+		GatewayOffset: 0,
 	}, nil
 }

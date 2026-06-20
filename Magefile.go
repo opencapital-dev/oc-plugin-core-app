@@ -7,7 +7,7 @@ import (
 	// mage:import
 	build "github.com/grafana/grafana-plugin-sdk-go/build"
 
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient/artifacts"
+	"github.com/opencapital-dev/oc-plugin-sdk/pluginclient/artifacts"
 )
 
 // Default configures the default target.
@@ -22,13 +22,8 @@ func CopyArtifacts() error {
 }
 
 func init() {
-	// confluent-kafka-go links against librdkafka via CGO. The SDK's
-	// default build path sets CGO_ENABLED=0; flip it on via the
-	// before-build callback so every target compiles with cgo. The
-	// plugin-builder container ships the build toolchain (gcc + libc
-	// headers) required to link librdkafka statically.
+	// No CGO dependencies; keep CGO disabled (SDK default) for reproducible builds.
 	_ = build.SetBeforeBuildCallback(func(cfg build.Config) (build.Config, error) {
-		cfg.EnableCGo = true
 		return cfg, nil
 	})
 }

@@ -1,11 +1,8 @@
 package plugin
 
 import (
-	"context"
 	"net/http"
 	"strings"
-
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 // OptionMarkNamespace is the only data.v2 namespace this plugin publishes.
@@ -13,10 +10,7 @@ import (
 // projections see byte-identical values.
 const OptionMarkNamespace = "prices.option_mark"
 
-// OptionDeliveryCreate covers OPTION_EXERCISE + OPTION_ASSIGNMENT. The
-// kind=option pre-check that used to read instruments via PG is dropped —
-// canonical instruments live in control_db; the gateway runs the
-// existence + ownership check during publish.
+// OptionDeliveryCreate covers OPTION_EXERCISE + OPTION_ASSIGNMENT.
 type OptionDeliveryCreate struct {
 	PortfolioID     string  `json:"portfolio_id"`
 	InstrumentID    string  `json:"instrument_id"`
@@ -64,12 +58,12 @@ type OptionMarkCreate struct {
 }
 
 type OptionMarkOut struct {
-	InstrumentID    string `json:"instrument_id"`
-	ObservedAt      int64  `json:"observed_at"`
+	InstrumentID    string  `json:"instrument_id"`
+	ObservedAt      int64   `json:"observed_at"`
 	Close           float64 `json:"close"`
-	Currency        string `json:"currency"`
-	SourceNamespace string `json:"source_namespace"`
-	GatewayOffset   int64  `json:"gateway_offset"`
+	Currency        string  `json:"currency"`
+	SourceNamespace string  `json:"source_namespace"`
+	GatewayOffset   int64   `json:"gateway_offset"`
 }
 
 func (a *App) registerOptionLifecycleRoutes(mux *http.ServeMux) {
@@ -117,16 +111,6 @@ func (a *App) handleOptionDelivery(w http.ResponseWriter, r *http.Request, event
 	if body.EventTs != nil {
 		eventTs = *body.EventTs
 	}
-	var route string
-	switch eventType {
-	case "OPTION_EXERCISE":
-		route = "option-exercises"
-	case "OPTION_ASSIGNMENT":
-		route = "option-assignments"
-	default:
-		respondErr(w, http.StatusInternalServerError, "unknown option delivery event type: "+eventType)
-		return
-	}
 	payloadStr, payloadErr := marshalPayload(map[string]any{
 		"underlying_id":    ptrStr(body.UnderlyingID),
 		"settlement_price": body.SettlementPrice,
@@ -139,20 +123,10 @@ func (a *App) handleOptionDelivery(w http.ResponseWriter, r *http.Request, event
 		return
 	}
 	instrumentID := body.InstrumentID
-	result, err := a.client.PublishPortfolioEvent(ctx, route, pluginclient.PortfolioEventBody{
-		SourceID:     srcID,
-		PortfolioID:  body.PortfolioID,
-		InstrumentID: &instrumentID,
-		BusinessTs:   eventTs,
-		Payload:      payloadStr,
-	})
+	err := a.insertEvent(ctx, eventType, srcID, body.PortfolioID, &instrumentID, eventTs, payloadStr)
 	if err != nil {
 		respondErr(w, http.StatusBadGateway, err.Error())
 		return
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	underlying := body.UnderlyingID
 	delSide := strings.ToLower(body.DeliveredSide)
@@ -168,7 +142,7 @@ func (a *App) handleOptionDelivery(w http.ResponseWriter, r *http.Request, event
 		Currency:        strings.ToUpper(body.Currency),
 		EventTs:         eventTs,
 		ObservationID:   a.newID(),
-		GatewayOffset:   offset,
+		GatewayOffset:   0,
 	})
 }
 
@@ -200,20 +174,10 @@ func (a *App) handleOptionExpiry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	instrumentID := body.InstrumentID
-	result, err := a.client.PublishPortfolioEvent(ctx, "option-expiries", pluginclient.PortfolioEventBody{
-		SourceID:     srcID,
-		PortfolioID:  body.PortfolioID,
-		InstrumentID: &instrumentID,
-		BusinessTs:   eventTs,
-		Payload:      payloadStr,
-	})
+	err := a.insertEvent(ctx, "OPTION_EXPIRY", srcID, body.PortfolioID, &instrumentID, eventTs, payloadStr)
 	if err != nil {
 		respondErr(w, http.StatusBadGateway, err.Error())
 		return
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	respondJSON(w, http.StatusCreated, OptionLifecycleOut{
 		PortfolioID:   body.PortfolioID,
@@ -223,7 +187,7 @@ func (a *App) handleOptionExpiry(w http.ResponseWriter, r *http.Request) {
 		Currency:      strings.ToUpper(body.Currency),
 		EventTs:       eventTs,
 		ObservationID: a.newID(),
-		GatewayOffset: offset,
+		GatewayOffset: 0,
 	})
 }
 
@@ -239,23 +203,18 @@ func (a *App) handleOptionMark(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	gatewayBody := map[string]any{
-		"source_id":   body.InstrumentID,
-		"observed_at": body.ObservedAt,
-		"updated_by":  body.UpdatedBy,
-		"payload": map[string]any{
-			"close":    body.Close,
-			"currency": strings.ToUpper(body.Currency),
-		},
-	}
-	result, err := a.publishDataMark(ctx, gatewayBody)
+	payloadStr, err := marshalPayload(map[string]any{
+		"close":    body.Close,
+		"currency": strings.ToUpper(body.Currency),
+	})
 	if err != nil {
-		respondErr(w, http.StatusBadGateway, err.Error())
+		respondErr(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
+	// Option marks are not portfolio-scoped; portfolioID = "".
+	if err := a.insertData(ctx, OptionMarkNamespace, body.InstrumentID, "", body.ObservedAt, payloadStr); err != nil {
+		respondErr(w, http.StatusBadGateway, err.Error())
+		return
 	}
 	respondJSON(w, http.StatusCreated, OptionMarkOut{
 		InstrumentID:    body.InstrumentID,
@@ -263,21 +222,6 @@ func (a *App) handleOptionMark(w http.ResponseWriter, r *http.Request) {
 		Close:           body.Close,
 		Currency:        strings.ToUpper(body.Currency),
 		SourceNamespace: OptionMarkNamespace,
-		GatewayOffset:   offset,
+		GatewayOffset:   0,
 	})
-}
-
-// publishDataMark is the wrapper that routes the option-mark publish to
-// the right data.v2 namespace. Single hot site, but extracted for tests.
-func (a *App) publishDataMark(ctx context.Context, body map[string]any) (*pubResult, error) {
-	res, err := a.client.PublishData(ctx, OptionMarkNamespace, body)
-	if err != nil {
-		return nil, err
-	}
-	return &pubResult{Offset: res.Offset}, nil
-}
-
-// pubResult mirrors the subset of pluginclient.PublishResult tests need.
-type pubResult struct {
-	Offset int64
 }

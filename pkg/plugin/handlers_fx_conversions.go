@@ -6,8 +6,6 @@ import (
 	"math"
 	"net/http"
 	"strings"
-
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 const fxRateRelativeTolerance = 1e-4
@@ -78,6 +76,10 @@ func (a *App) handleCreateFxConversion(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, out)
 }
 
+// handleFxConversionsBulk publishes FX conversions one at a time. The SDK
+// exposes no transaction API, so an error mid-batch leaves a partial insert.
+// Callers should treat failures as requiring idempotent retry using the same
+// fx_conversion_id values.
 func (a *App) handleFxConversionsBulk(w http.ResponseWriter, r *http.Request) {
 	if !methodGuard(w, r, http.MethodPost) {
 		return
@@ -140,18 +142,10 @@ func (a *App) publishFxConversion(ctx context.Context, body FxConversionCreate) 
 	if err != nil {
 		return FxConversionOut{}, err
 	}
-	result, err := a.client.PublishPortfolioEvent(ctx, "fx-conversions", pluginclient.PortfolioEventBody{
-		SourceID:    id,
-		PortfolioID: body.PortfolioID,
-		BusinessTs:  eventTs,
-		Payload:     payloadStr,
-	})
+	// FX conversions have no instrument_id.
+	err = a.insertEvent(ctx, "FX_CONVERSION", id, body.PortfolioID, nil, eventTs, payloadStr)
 	if err != nil {
 		return FxConversionOut{}, err
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	return FxConversionOut{
 		PortfolioID:    body.PortfolioID,
@@ -165,6 +159,6 @@ func (a *App) publishFxConversion(ctx context.Context, body FxConversionCreate) 
 		FeesCurrency:   optionalUpper(body.FeesCurrency),
 		EventTs:        eventTs,
 		ObservationID:  a.newID(),
-		GatewayOffset:  offset,
+		GatewayOffset:  0,
 	}, nil
 }
