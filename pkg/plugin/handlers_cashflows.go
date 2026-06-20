@@ -56,6 +56,10 @@ func (a *App) handleCreateCashflow(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, out)
 }
 
+// handleCashflowsBulk publishes cashflows one at a time. The SDK exposes no
+// transaction API, so an error mid-batch leaves a partial insert. Callers
+// should treat failures as requiring idempotent retry using the same cashflow_id
+// values.
 func (a *App) handleCashflowsBulk(w http.ResponseWriter, r *http.Request) {
 	if !methodGuard(w, r, http.MethodPost) {
 		return

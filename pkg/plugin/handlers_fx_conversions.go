@@ -76,6 +76,10 @@ func (a *App) handleCreateFxConversion(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, out)
 }
 
+// handleFxConversionsBulk publishes FX conversions one at a time. The SDK
+// exposes no transaction API, so an error mid-batch leaves a partial insert.
+// Callers should treat failures as requiring idempotent retry using the same
+// fx_conversion_id values.
 func (a *App) handleFxConversionsBulk(w http.ResponseWriter, r *http.Request) {
 	if !methodGuard(w, r, http.MethodPost) {
 		return

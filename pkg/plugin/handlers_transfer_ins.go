@@ -67,6 +67,10 @@ func (a *App) handleCreateTransferIn(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, out)
 }
 
+// handleTransferInsBulk publishes transfer-in rows one at a time. The SDK
+// exposes no transaction API, so an error mid-batch leaves a partial insert.
+// Callers should treat failures as requiring idempotent retry using the same
+// lot_id / transfer_id values.
 func (a *App) handleTransferInsBulk(w http.ResponseWriter, r *http.Request) {
 	if !methodGuard(w, r, http.MethodPost) {
 		return
@@ -152,6 +156,10 @@ func (a *App) publishTransferIn(ctx context.Context, body TransferInCreate) (Tra
 	if err != nil {
 		return TransferInOut{}, err
 	}
+	// AcquisitionDate is epoch-microseconds (µs). The frontend parseEventTs
+	// returns ms*1000 (µs) and TransferInRequest.acquisition_date carries that
+	// value unchanged. insertEvent's SQL uses to_timestamp($5/1e6) which
+	// converts µs → seconds for RisingWave's TIMESTAMPTZ column — correct.
 	instrumentID := body.InstrumentID
 	err = a.insertEvent(ctx, "TRANSFER_IN", lotID, body.PortfolioID, &instrumentID, body.AcquisitionDate, payloadStr)
 	if err != nil {
