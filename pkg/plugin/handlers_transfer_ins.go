@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 type TransferInCreate struct {
@@ -155,19 +153,9 @@ func (a *App) publishTransferIn(ctx context.Context, body TransferInCreate) (Tra
 		return TransferInOut{}, err
 	}
 	instrumentID := body.InstrumentID
-	result, err := a.client.PublishPortfolioEvent(ctx, "transfer-ins", pluginclient.PortfolioEventBody{
-		SourceID:     lotID,
-		PortfolioID:  body.PortfolioID,
-		InstrumentID: &instrumentID,
-		BusinessTs:   body.AcquisitionDate,
-		Payload:      payloadStr,
-	})
+	err = a.insertEvent(ctx, "TRANSFER_IN", lotID, body.PortfolioID, &instrumentID, body.AcquisitionDate, payloadStr)
 	if err != nil {
 		return TransferInOut{}, err
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	return TransferInOut{
 		PortfolioID:         body.PortfolioID,
@@ -182,6 +170,6 @@ func (a *App) publishTransferIn(ctx context.Context, body TransferInCreate) (Tra
 		FxRateToBase:        body.FxRateToBase,
 		EventTs:             body.AcquisitionDate,
 		ObservationID:       a.newID(),
-		GatewayOffset:       offset,
+		GatewayOffset:       0,
 	}, nil
 }

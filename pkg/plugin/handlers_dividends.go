@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"strings"
-
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 type DividendCreate struct {
@@ -108,19 +106,9 @@ func (a *App) publishDividend(ctx context.Context, body DividendCreate) (Dividen
 		return DividendOut{}, err
 	}
 	instrumentID := body.InstrumentID
-	result, err := a.client.PublishPortfolioEvent(ctx, "dividends", pluginclient.PortfolioEventBody{
-		SourceID:     id,
-		PortfolioID:  body.PortfolioID,
-		InstrumentID: &instrumentID,
-		BusinessTs:   eventTs,
-		Payload:      payloadStr,
-	})
+	err = a.insertEvent(ctx, "DIVIDEND", id, body.PortfolioID, &instrumentID, eventTs, payloadStr)
 	if err != nil {
 		return DividendOut{}, err
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	return DividendOut{
 		PortfolioID:       body.PortfolioID,
@@ -131,6 +119,6 @@ func (a *App) publishDividend(ctx context.Context, body DividendCreate) (Dividen
 		Currency:          strings.ToUpper(body.Currency),
 		EventTs:           eventTs,
 		ObservationID:     a.newID(),
-		GatewayOffset:     offset,
+		GatewayOffset:     0,
 	}, nil
 }

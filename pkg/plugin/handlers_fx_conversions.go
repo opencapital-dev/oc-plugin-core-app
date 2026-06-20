@@ -6,8 +6,6 @@ import (
 	"math"
 	"net/http"
 	"strings"
-
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
 const fxRateRelativeTolerance = 1e-4
@@ -140,18 +138,10 @@ func (a *App) publishFxConversion(ctx context.Context, body FxConversionCreate) 
 	if err != nil {
 		return FxConversionOut{}, err
 	}
-	result, err := a.client.PublishPortfolioEvent(ctx, "fx-conversions", pluginclient.PortfolioEventBody{
-		SourceID:    id,
-		PortfolioID: body.PortfolioID,
-		BusinessTs:  eventTs,
-		Payload:     payloadStr,
-	})
+	// FX conversions have no instrument_id.
+	err = a.insertEvent(ctx, "FX_CONVERSION", id, body.PortfolioID, nil, eventTs, payloadStr)
 	if err != nil {
 		return FxConversionOut{}, err
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	return FxConversionOut{
 		PortfolioID:    body.PortfolioID,
@@ -165,6 +155,6 @@ func (a *App) publishFxConversion(ctx context.Context, body FxConversionCreate) 
 		FeesCurrency:   optionalUpper(body.FeesCurrency),
 		EventTs:        eventTs,
 		ObservationID:  a.newID(),
-		GatewayOffset:  offset,
+		GatewayOffset:  0,
 	}, nil
 }

@@ -4,12 +4,9 @@ import (
 	"context"
 	"net/http"
 	"strings"
-
-	"github.com/ignacioballester/oc-plugin-sdk/pluginclient"
 )
 
-// TradeCreate is the POST /trades body. The gateway injects org_id +
-// source + ingest_ts from the session JWT; the plugin must not set them.
+// TradeCreate is the POST /trades body.
 type TradeCreate struct {
 	PortfolioID    string   `json:"portfolio_id"`
 	InstrumentID   string   `json:"instrument_id"`
@@ -38,8 +35,8 @@ type TradeBulkCreate struct {
 }
 
 // TradeCorrectionCreate matches the legacy /trades/{id}/corrections body.
-// Retained at the handler layer for back-compat; the gateway side has no
-// correction_of column in v2 — the field is dropped before publish.
+// Retained at the handler layer for back-compat; the correction_of field is
+// dropped before publish.
 type TradeCorrectionCreate struct {
 	PortfolioID    string   `json:"portfolio_id"`
 	InstrumentID   string   `json:"instrument_id"`
@@ -57,8 +54,7 @@ type TradeCorrectionCreate struct {
 	FxFeesCurrency *string  `json:"fx_fees_currency"`
 }
 
-// TradeOut is the POST /trades response shape. Field names match
-// src/api/reference.ts.
+// TradeOut is the POST /trades response shape.
 type TradeOut struct {
 	PortfolioID        string  `json:"portfolio_id"`
 	InstrumentID       string  `json:"instrument_id"`
@@ -127,8 +123,7 @@ func (a *App) handleTradesBulk(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, out)
 }
 
-// handleTradeCorrection: v2 portfolio_events drops correction_of (ADR-0037).
-// The endpoint stays for client back-compat but publishes a normal TRADE.
+// handleTradeCorrection: correction_of is dropped — publishes a normal TRADE.
 func (a *App) handleTradeCorrection(w http.ResponseWriter, r *http.Request) {
 	if !methodGuard(w, r, http.MethodPost) {
 		return
@@ -165,10 +160,8 @@ func (a *App) handleTradeCorrection(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, out)
 }
 
-// publishTrade marshals the typed body into the gateway's portfolio_events
-// JSON shape and posts. The gateway runs schema validation, portfolio_id
-// ownership check, org_id injection, and Avro serialization — the plugin
-// just delivers the typed payload.
+// publishTrade marshals the typed body and inserts directly into
+// portfolio_events_log via RisingWave pgwire.
 func (a *App) publishTrade(ctx context.Context, body TradeCreate) (TradeOut, error) {
 	tradeID := derefStr(body.TradeID, "")
 	if tradeID == "" {
@@ -196,23 +189,13 @@ func (a *App) publishTrade(ctx context.Context, body TradeCreate) (TradeOut, err
 		return TradeOut{}, err
 	}
 	instrumentID := body.InstrumentID
-	result, err := a.client.PublishPortfolioEvent(ctx, "trades", pluginclient.PortfolioEventBody{
-		SourceID:     tradeID,
-		PortfolioID:  body.PortfolioID,
-		InstrumentID: &instrumentID,
-		BusinessTs:   eventTs,
-		Payload:      payloadStr,
-	})
+	err = a.insertEvent(ctx, "TRADE", tradeID, body.PortfolioID, &instrumentID, eventTs, payloadStr)
 	if err != nil {
 		return TradeOut{}, err
 	}
 	delta := body.Quantity
 	if strings.EqualFold(body.Side, "sell") {
 		delta = -delta
-	}
-	var offset int64
-	if result != nil {
-		offset = result.Offset
 	}
 	return TradeOut{
 		PortfolioID:        body.PortfolioID,
@@ -223,7 +206,7 @@ func (a *App) publishTrade(ctx context.Context, body TradeCreate) (TradeOut, err
 		DeltaQuantity:      delta,
 		EventTs:            eventTs,
 		TradeObservationID: a.newID(),
-		GatewayOffset:      offset,
+		GatewayOffset:      0,
 	}, nil
 }
 
