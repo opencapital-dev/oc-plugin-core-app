@@ -92,5 +92,3 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/fsnotify/fsnotify.v1 v1.4.7 // indirect
 )
-
-replace github.com/opencapital-dev/oc-plugin-sdk => ../oc-plugin-sdk
