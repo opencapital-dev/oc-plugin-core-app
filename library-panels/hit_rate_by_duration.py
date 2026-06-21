@@ -7,7 +7,8 @@ _BANDS = [
 ]
 
 
-@bind(cycles="cycles{portfolio=\"$portfolio_id\"} @window")
+@bind(cycles=("SELECT * FROM e_cycles WHERE portfolio=$1 AND ts BETWEEN $2 AND $3 ORDER BY ts ASC",
+              "$portfolio_id", window.t0, window.t1))
 @metric(output="table")
 def hit_rate_by_duration(cycles):
     labels, n_round_trips, n_wins, win_rate, avg_pnl = [], [], [], [], []

@@ -11,9 +11,12 @@ def _annualize_alpha(a):
     return (1.0 + a) ** PY - 1.0
 
 @bind(
-    nav="nav{portfolio=\"$portfolio_id\"} @asof",
-    flows="flows{portfolio=\"$portfolio_id\"} @window",
-    bench="price{portfolio=\"$portfolio_id\", instrument=\"$benchmark_ids\"}[ts, value] @asof",
+    nav=("SELECT * FROM e_nav WHERE portfolio=$1 ORDER BY ts ASC",
+         "$portfolio_id"),
+    flows=("SELECT * FROM e_flows WHERE portfolio=$1 AND ts BETWEEN $2 AND $3 ORDER BY ts ASC",
+           "$portfolio_id", window.t0, window.t1),
+    bench=("SELECT * FROM e_price WHERE portfolio=$1 AND instrument=$2 ORDER BY ts ASC",
+           "$portfolio_id", "$benchmark_ids"),
 )
 @metric(output="series")
 def alpha_series(nav, flows, bench):

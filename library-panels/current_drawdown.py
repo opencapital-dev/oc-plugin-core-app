@@ -1,7 +1,12 @@
 STEP_SEC = 3600 if "${sample_interval}" == "1h" else 86400
 STEP_US = STEP_SEC * 1_000_000
 
-@bind(nav="nav{portfolio=\"$portfolio_id\"} @asof", flows="flows{portfolio=\"$portfolio_id\"} @window")
+@bind(
+    nav=("SELECT * FROM e_nav WHERE portfolio=$1 ORDER BY ts ASC",
+         "$portfolio_id"),
+    flows=("SELECT * FROM e_flows WHERE portfolio=$1 AND ts BETWEEN $2 AND $3 ORDER BY ts ASC",
+           "$portfolio_id", window.t0, window.t1),
+)
 @metric(output="scalar")
 def current_drawdown_panel(nav, flows):
     t0, t1 = window
