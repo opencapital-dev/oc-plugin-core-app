@@ -1,4 +1,6 @@
-@bind(holdings="instrument{portfolio=\"${portfolio_id}\", quantity != 0} @latest")
+@bind(holdings=("SELECT DISTINCT ON (portfolio, instrument) * FROM e_instrument "
+                "WHERE portfolio=$1 AND quantity != $2 "
+                "ORDER BY portfolio, instrument, ts DESC", "$portfolio_id", 0))
 @metric(output="table")
 def allocation(holdings):
     if holdings.is_empty():
