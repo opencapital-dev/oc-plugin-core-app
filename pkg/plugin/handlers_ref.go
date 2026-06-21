@@ -91,7 +91,9 @@ func (a *App) handleListPortfolios(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	res, err := a.client.PGQuery(ctx, "SELECT portfolio_id, base_currency, attributes FROM portfolios ORDER BY portfolio_id")
+	// portfolio_id is a UUID column; pgx decodes it as [16]byte, so cast to
+	// text in SQL to get a plain string (a bare row[0].(string) yields "").
+	res, err := a.client.PGQuery(ctx, "SELECT portfolio_id::text, base_currency, attributes FROM portfolios ORDER BY portfolio_id")
 	if err != nil {
 		respondErr(w, http.StatusBadGateway, "list portfolios: "+err.Error())
 		return
