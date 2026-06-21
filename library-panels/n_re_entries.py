@@ -1,4 +1,5 @@
-@bind(cycles="cycles{portfolio=\"$portfolio_id\"} @window")
+@bind(cycles=("SELECT * FROM e_cycles WHERE portfolio=$1 AND ts BETWEEN $2 AND $3 ORDER BY ts ASC",
+              "$portfolio_id", window.t0, window.t1))
 @metric(output="scalar")
 def n_re_entries(cycles):
     if cycles.is_empty():
