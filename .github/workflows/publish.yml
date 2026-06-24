@@ -3,7 +3,7 @@ on:
   push:
     tags: ["v*"]
 permissions:
-  contents: read
+  contents: write
   packages: write
   id-token: write
 jobs:
@@ -64,4 +64,3 @@ jobs:
           owner: opencapital-dev
           version: ${{ github.ref_name }}
           platforms: darwin-amd64,darwin-arm64,windows-amd64
-          catalog-token: ${{ secrets.CATALOG_PR_TOKEN }}
