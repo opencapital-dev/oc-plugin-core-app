@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/css';
 import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Button, Drawer, Field, Input, Select, Stack, useStyles2 } from '@grafana/ui';
@@ -34,6 +34,12 @@ export function EventDrawer({ state, portfolioId, onClose, onSubmit, onEdit, onD
   }, [state]);
 
   const [form, setForm] = useState<EventForm>(initialForm);
+
+  useEffect(() => {
+    setType(state.type);
+    setForm(state.mode === 'create' ? {} : EVENT_REGISTRY[state.type].fromRow(state.row));
+  }, [state]);
+
   const set = (name: string, value: string) => setForm((f) => ({ ...f, [name]: value }));
 
   const title =
