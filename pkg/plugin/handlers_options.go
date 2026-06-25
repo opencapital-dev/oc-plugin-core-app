@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -146,7 +145,7 @@ func (a *App) handleOptionDelivery(w http.ResponseWriter, r *http.Request, event
 // insertOptionDelivery upserts an OPTION_EXERCISE/OPTION_ASSIGNMENT event.
 func (a *App) insertOptionDelivery(ctx context.Context, eventType string, body OptionDeliveryCreate) error {
 	if body.SettlementPrice < 0 {
-		return fmt.Errorf("settlement_price must be >= 0")
+		return validationError{msg: "settlement_price must be >= 0"}
 	}
 	srcID := derefStr(body.ExerciseID, "")
 	if srcID == "" {

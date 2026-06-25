@@ -123,7 +123,9 @@ export function ImportPage() {
   const parseErrors = parseResult?.errors ?? [];
 
   const selectedPortfolio = portfolios.find((p) => p.portfolio_id === portfolioId) ?? null;
-  const baseCurrency = selectedPortfolio?.base_currency;
+  const targetLabel = selectedPortfolio
+    ? `${selectedPortfolio.attributes?.name?.trim() || 'Untitled portfolio'}  ·  ${selectedPortfolio.base_currency}`
+    : portfolioId;
 
   // Cash-flow simulation — computed once from the original parse result and shown
   // above the review table as an early-warning of potential overdrafts.
@@ -152,6 +154,8 @@ export function ImportPage() {
     setPreviewInputs([]);
     setImportedCount(null);
     setReviewDrawer(null);
+    setReviewQuery('');
+    setReviewFamily('all');
   }
 
   async function handleCsv(text: string) {
@@ -264,7 +268,15 @@ export function ImportPage() {
   const commitReview = async () => {
     setRunning(true);
     try {
-      await writeEventsBulk(previewInputs);
+      // Strip any synthetic preview- source_ids that must not reach the backend.
+      const toCommit: EventInput[] = previewInputs.map((p) => {
+        if (typeof p.source_id === 'string' && p.source_id.startsWith('preview-')) {
+          const { source_id: _discard, ...rest } = p;
+          return rest as EventInput;
+        }
+        return p;
+      });
+      await writeEventsBulk(toCommit);
       const count = previewInputs.length;
       setImportedCount(count);
       setStep('done');
@@ -290,7 +302,7 @@ export function ImportPage() {
                   <Select
                     width={28}
                     options={portfolios.map((p) => ({
-                      label: p.portfolio_id,
+                      label: `${p.attributes?.name?.trim() || 'Untitled portfolio'}  ·  ${p.base_currency}`,
                       value: p.portfolio_id,
                     }))}
                     value={portfolioId}
@@ -425,6 +437,11 @@ export function ImportPage() {
                   </Button>
                 </Stack>
               </div>
+              {previewInputs.length === 0 ? (
+                <p className={styles.hint}>
+                  No importable events found in this file.
+                </p>
+              ) : null}
               <div className={styles.tableWrapper}>
                 <EventsTable
                   rows={inputsToRows(previewInputs)}
@@ -462,8 +479,7 @@ export function ImportPage() {
                 </Field>
               </Stack>
               <p className={styles.hint}>
-                Portfolio: <strong>{portfolioId}</strong>
-                {baseCurrency ? ` · base ${baseCurrency}` : ''}. Click a row to inspect or
+                Portfolio: <strong>{targetLabel}</strong>. Click a row to inspect or
                 edit it before committing.
               </p>
             </div>
@@ -477,8 +493,7 @@ export function ImportPage() {
               </Stack>
               <Stack direction="row" gap={2} wrap="wrap">
                 <Stat label="Events imported" value={String(importedCount)} />
-                <Stat label="Portfolio" value={portfolioId} />
-                {baseCurrency ? <Stat label="Base currency" value={baseCurrency} /> : null}
+                <Stat label="Portfolio" value={targetLabel} />
               </Stack>
             </div>
           ) : null}
@@ -491,7 +506,13 @@ export function ImportPage() {
               onSubmit={(input) => {
                 if (reviewDrawer.mode !== 'create') {
                   const idx = Number(reviewDrawer.row.source_id.replace('preview-', ''));
-                  setPreviewInputs((prev) => prev.map((p, i) => (i === idx ? input : p)));
+                  // Strip the synthetic preview- source_id from the edited input so the
+                  // broker's real typed id (trade_id / lot_id / etc.) on the original
+                  // previewInputs entry is preserved. Merge edited fields over the original.
+                  const { source_id: _preview, ...editedFields } = input;
+                  setPreviewInputs((prev) =>
+                    prev.map((p, i) => (i === idx ? { ...p, ...editedFields } : p))
+                  );
                 }
                 setReviewDrawer(null);
               }}
