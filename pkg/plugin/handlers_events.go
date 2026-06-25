@@ -3,6 +3,7 @@ package plugin
 import "net/http"
 
 func (a *App) registerEventRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /ref/events", a.handleListEvents)
 	mux.HandleFunc("DELETE /ref/events/{source_id}", a.handleDeleteEvent)
 }
 
