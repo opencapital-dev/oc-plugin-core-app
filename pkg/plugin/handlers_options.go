@@ -1,6 +1,8 @@
 package plugin
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -100,31 +102,26 @@ func (a *App) handleOptionDelivery(w http.ResponseWriter, r *http.Request, event
 	if !ok {
 		return
 	}
+	// Pre-compute srcID and eventTs so we can echo them in the response.
+	// Inject any freshly-generated values back into the body so that
+	// insertOptionDelivery (which re-derives from body fields) uses the
+	// same values and the DB row matches what we report.
 	srcID := derefStr(body.ExerciseID, "")
 	if srcID == "" {
 		srcID = derefStr(body.AssignmentID, "")
 	}
 	if srcID == "" {
-		srcID = a.newID()
+		newID := a.newID()
+		srcID = newID
+		body.ExerciseID = &newID
 	}
 	eventTs := a.now()
 	if body.EventTs != nil {
 		eventTs = *body.EventTs
+	} else {
+		body.EventTs = &eventTs
 	}
-	payloadStr, payloadErr := marshalPayload(map[string]any{
-		"underlying_id":    ptrStr(body.UnderlyingID),
-		"settlement_price": body.SettlementPrice,
-		"delivered_qty":    body.DeliveredQty,
-		"delivered_side":   strings.ToLower(body.DeliveredSide),
-		"currency":         strings.ToUpper(body.Currency),
-	})
-	if payloadErr != nil {
-		respondErr(w, http.StatusInternalServerError, payloadErr.Error())
-		return
-	}
-	instrumentID := body.InstrumentID
-	err := a.insertEvent(ctx, eventType, srcID, body.PortfolioID, &instrumentID, eventTs, payloadStr)
-	if err != nil {
+	if err := a.insertOptionDelivery(ctx, eventType, body); err != nil {
 		respondErr(w, http.StatusBadGateway, err.Error())
 		return
 	}
@@ -146,6 +143,36 @@ func (a *App) handleOptionDelivery(w http.ResponseWriter, r *http.Request, event
 	})
 }
 
+// insertOptionDelivery upserts an OPTION_EXERCISE/OPTION_ASSIGNMENT event.
+func (a *App) insertOptionDelivery(ctx context.Context, eventType string, body OptionDeliveryCreate) error {
+	if body.SettlementPrice < 0 {
+		return fmt.Errorf("settlement_price must be >= 0")
+	}
+	srcID := derefStr(body.ExerciseID, "")
+	if srcID == "" {
+		srcID = derefStr(body.AssignmentID, "")
+	}
+	if srcID == "" {
+		srcID = a.newID()
+	}
+	eventTs := a.now()
+	if body.EventTs != nil {
+		eventTs = *body.EventTs
+	}
+	payloadStr, err := marshalPayload(map[string]any{
+		"underlying_id":    ptrStr(body.UnderlyingID),
+		"settlement_price": body.SettlementPrice,
+		"delivered_qty":    body.DeliveredQty,
+		"delivered_side":   strings.ToLower(body.DeliveredSide),
+		"currency":         strings.ToUpper(body.Currency),
+	})
+	if err != nil {
+		return err
+	}
+	instrumentID := body.InstrumentID
+	return a.insertEvent(ctx, eventType, srcID, body.PortfolioID, &instrumentID, eventTs, payloadStr)
+}
+
 func (a *App) handleOptionExpiry(w http.ResponseWriter, r *http.Request) {
 	if !methodGuard(w, r, http.MethodPost) {
 		return
@@ -158,24 +185,22 @@ func (a *App) handleOptionExpiry(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	// Pre-compute srcID and eventTs so we can echo them in the response.
+	// Inject freshly-generated values back into body so insertOptionExpiry
+	// uses the same values.
 	srcID := derefStr(body.ExpiryID, "")
 	if srcID == "" {
-		srcID = a.newID()
+		newID := a.newID()
+		srcID = newID
+		body.ExpiryID = &newID
 	}
 	eventTs := a.now()
 	if body.EventTs != nil {
 		eventTs = *body.EventTs
+	} else {
+		body.EventTs = &eventTs
 	}
-	payloadStr, payloadErr := marshalPayload(map[string]any{
-		"currency": strings.ToUpper(body.Currency),
-	})
-	if payloadErr != nil {
-		respondErr(w, http.StatusInternalServerError, payloadErr.Error())
-		return
-	}
-	instrumentID := body.InstrumentID
-	err := a.insertEvent(ctx, "OPTION_EXPIRY", srcID, body.PortfolioID, &instrumentID, eventTs, payloadStr)
-	if err != nil {
+	if err := a.insertOptionExpiry(ctx, body); err != nil {
 		respondErr(w, http.StatusBadGateway, err.Error())
 		return
 	}
@@ -189,6 +214,26 @@ func (a *App) handleOptionExpiry(w http.ResponseWriter, r *http.Request) {
 		ObservationID: a.newID(),
 		GatewayOffset: 0,
 	})
+}
+
+// insertOptionExpiry upserts an OPTION_EXPIRY event.
+func (a *App) insertOptionExpiry(ctx context.Context, body OptionExpiryCreate) error {
+	srcID := derefStr(body.ExpiryID, "")
+	if srcID == "" {
+		srcID = a.newID()
+	}
+	eventTs := a.now()
+	if body.EventTs != nil {
+		eventTs = *body.EventTs
+	}
+	payloadStr, err := marshalPayload(map[string]any{
+		"currency": strings.ToUpper(body.Currency),
+	})
+	if err != nil {
+		return err
+	}
+	instrumentID := body.InstrumentID
+	return a.insertEvent(ctx, "OPTION_EXPIRY", srcID, body.PortfolioID, &instrumentID, eventTs, payloadStr)
 }
 
 func (a *App) handleOptionMark(w http.ResponseWriter, r *http.Request) {

@@ -3,6 +3,7 @@ package plugin
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 )
 
@@ -58,6 +59,11 @@ func joinAllowed(methods []string) string {
 		out += m
 	}
 	return out
+}
+
+// readBody reads and returns the whole request body, capped at 4 MiB.
+func readBody(r *http.Request) ([]byte, error) {
+	return io.ReadAll(io.LimitReader(r.Body, 4<<20))
 }
 
 // errNotFound is the sentinel handlers compare against to translate a

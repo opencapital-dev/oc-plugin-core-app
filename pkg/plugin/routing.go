@@ -9,6 +9,7 @@ import "net/http"
 func (a *App) registerLocalRoutes(mux *http.ServeMux) {
 	a.registerRefRoutes(mux)
 	a.registerEventRoutes(mux)
+	a.registerEventWriteRoutes(mux)
 	a.registerTradeRoutes(mux)
 	a.registerDividendRoutes(mux)
 	a.registerCashflowRoutes(mux)
