@@ -1,4 +1,5 @@
 import { refRequest } from './client';
+import type { EventInput, EventRow } from '../lib/events/types';
 
 export type PortfolioEntity = {
   portfolio_id: string;
@@ -249,6 +250,21 @@ export function deleteEvent(sourceId: string, portfolioId: string) {
     `/events/${encodeURIComponent(sourceId)}?portfolio_id=${encodeURIComponent(portfolioId)}`,
     { method: 'DELETE' },
   );
+}
+
+export function listEvents(portfolioId: string) {
+  return refRequest<EventRow[]>(`/events?portfolio_id=${encodeURIComponent(portfolioId)}`);
+}
+
+export function writeEvent(input: EventInput) {
+  return refRequest<{ status: string }>('/events', { method: 'POST', body: input });
+}
+
+export function writeEventsBulk(inputs: EventInput[]) {
+  return refRequest<{ status: string; count: number }>('/events/bulk', {
+    method: 'POST',
+    body: inputs,
+  });
 }
 
 export function submitTrade(payload: TradeRequest) {
