@@ -8,6 +8,9 @@ def annualized_return_series(nav, flows):
     step = "${sample_interval}"
     PY = 252.0 if step == "1d" else 252.0 * 6.5
     rets = returns(nav, flows, step)
+    # Expanding: O(n^2) over the grid (per-tick filter + inner accumulation).
+    # Fine at the default 1d/90d (~90 ticks); heavy only if 1h is paired with a
+    # multi-year range. Acceptable for now; revisit with a prefix-scan if needed.
     def asof_a(t):
         sub = rets.filter((pl.col("ts") <= t) & pl.col("ret").is_not_null())["ret"]
         n = sub.len()

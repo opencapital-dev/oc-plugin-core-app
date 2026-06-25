@@ -7,6 +7,9 @@
 def drawdown_series(nav, flows):
     step = "${sample_interval}"
     rets = returns(nav, flows, step)
+    # Expanding: O(n^2) over the grid (per-tick filter + inner accumulation).
+    # Fine at the default 1d/90d (~90 ticks); heavy only if 1h is paired with a
+    # multi-year range. Acceptable for now; revisit with a prefix-scan if needed.
     def asof_d(t):
         sub = rets.filter((pl.col("ts") <= t) & pl.col("ret").is_not_null())["ret"]
         if sub.len() < 1:
