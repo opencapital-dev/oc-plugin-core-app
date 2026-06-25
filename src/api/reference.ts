@@ -27,11 +27,6 @@ export type InstrumentEntity = {
   updated_at: number;
 };
 
-export type InstrumentTaxonomy = {
-  sectors: string[];
-  subindustries: string[];
-};
-
 export type LookupCandidate = {
   symbol: string;
   short_name: string | null;
@@ -59,49 +54,6 @@ export type TradeRequest = {
   contract_multiplier?: number;
 };
 
-export type TradeOut = {
-  portfolio_id: string;
-  instrument_id: string;
-  trade_id: string;
-  side: string;
-  trade_quantity: number;
-  delta_quantity: number;
-  event_ts: number;
-  trade_observation_id: string;
-  correction_of?: string | null;
-};
-
-export type TradeListRow = {
-  scope_type?: string | null;
-  scope_id?: string | null;
-  instrument_id?: string | null;
-  side?: string | null;
-  trade_id?: string | null;
-  price?: number | null;
-  quantity?: number | null;
-  currency?: string | null;
-  venue?: string | null;
-  source?: string | null;
-  observation_id?: string | null;
-  correction_of?: string | null;
-  event_ts: number;
-  ingest_ts?: number | null;
-};
-
-export type TradeCorrectionPayload = {
-  portfolio_id: string;
-  instrument_id: string;
-  side: 'buy' | 'sell';
-  price: number;
-  quantity: number;
-  currency: string;
-  venue: string;
-  updated_by: string;
-  event_ts: number;
-  commission?: number;
-  fees?: number;
-};
-
 export type CashflowType = 'DEPOSIT' | 'WITHDRAWAL' | 'INTEREST_ON_CASH' | 'FEE';
 
 export type DividendRequest = {
@@ -118,18 +70,6 @@ export type DividendRequest = {
   fx_fees_currency?: string;
 };
 
-export type DividendOut = {
-  portfolio_id: string;
-  instrument_id: string;
-  dividend_id: string;
-  gross_native: number;
-  withholding_native?: number | null;
-  currency: string;
-  event_ts: number;
-  observation_id: string;
-  correction_of?: string | null;
-};
-
 export type CashflowRequest = {
   portfolio_id: string;
   type: CashflowType;
@@ -138,17 +78,6 @@ export type CashflowRequest = {
   updated_by: string;
   cashflow_id?: string;
   event_ts?: number;
-};
-
-export type CashflowOut = {
-  portfolio_id: string;
-  cashflow_id: string;
-  type: CashflowType;
-  amount_native: number;
-  currency: string;
-  event_ts: number;
-  observation_id: string;
-  correction_of?: string | null;
 };
 
 export type FxConversionRequest = {
@@ -165,21 +94,6 @@ export type FxConversionRequest = {
   event_ts?: number;
 };
 
-export type FxConversionOut = {
-  portfolio_id: string;
-  fx_conversion_id: string;
-  from_currency: string;
-  from_amount: number;
-  to_currency: string;
-  to_amount: number;
-  rate: number;
-  fees_native?: number | null;
-  fees_currency?: string | null;
-  event_ts: number;
-  observation_id: string;
-  correction_of?: string | null;
-};
-
 export type TransferInRequest = {
   portfolio_id: string;
   instrument_id: string;
@@ -193,22 +107,6 @@ export type TransferInRequest = {
   fx_rate_to_base?: number;
   transfer_id?: string;
   event_ts?: number;
-};
-
-export type TransferInOut = {
-  portfolio_id: string;
-  instrument_id: string;
-  transfer_id: string;
-  lot_id: string;
-  quantity: number;
-  cost_basis_native: number;
-  currency: string;
-  acquisition_date: number;
-  fx_rate_at_acquisition: number;
-  fx_rate_to_base?: number | null;
-  event_ts: number;
-  observation_id: string;
-  correction_of?: string | null;
 };
 
 export type AcquisitionLot = {
@@ -267,147 +165,6 @@ export function writeEventsBulk(inputs: EventInput[]) {
   });
 }
 
-export function submitTrade(payload: TradeRequest) {
-  return refRequest<TradeOut>('/trades', { method: 'POST', body: payload });
-}
-
-export function listTrades(portfolioId: string) {
-  return refRequest<TradeListRow[]>(`/trades?portfolio_id=${encodeURIComponent(portfolioId)}`);
-}
-
-export function submitTradesBulk(trades: TradeRequest[]) {
-  return refRequest<TradeOut[]>('/trades/bulk', { method: 'POST', body: { trades } });
-}
-
-export function submitTradeCorrection(
-  originalTradeId: string,
-  payload: TradeCorrectionPayload
-) {
-  return refRequest<TradeOut>(
-    `/trades/${encodeURIComponent(originalTradeId)}/corrections`,
-    { method: 'POST', body: payload }
-  );
-}
-
-export function submitDividend(payload: DividendRequest) {
-  return refRequest<DividendOut>('/dividends', { method: 'POST', body: payload });
-}
-
-export function submitDividendsBulk(dividends: DividendRequest[]) {
-  return refRequest<DividendOut[]>('/dividends/bulk', {
-    method: 'POST',
-    body: { dividends },
-  });
-}
-
-export type DividendListRow = {
-  scope_id?: string | null;
-  instrument_id?: string | null;
-  dividend_id?: string | null;
-  gross_native?: number | null;
-  withholding_native?: number | null;
-  currency?: string | null;
-  source?: string | null;
-  correction_of?: string | null;
-  event_ts: number;
-};
-
-export function listDividends(portfolioId: string) {
-  return refRequest<DividendListRow[]>(
-    `/dividends?portfolio_id=${encodeURIComponent(portfolioId)}`,
-  );
-}
-
-export function submitCashflow(payload: CashflowRequest) {
-  return refRequest<CashflowOut>('/cashflows', { method: 'POST', body: payload });
-}
-
-export function submitCashflowsBulk(cashflows: CashflowRequest[]) {
-  return refRequest<CashflowOut[]>('/cashflows/bulk', {
-    method: 'POST',
-    body: { cashflows },
-  });
-}
-
-export type CashflowListRow = {
-  scope_id?: string | null;
-  cashflow_id?: string | null;
-  type?: string | null;
-  amount_native?: number | null;
-  currency?: string | null;
-  source?: string | null;
-  correction_of?: string | null;
-  event_ts: number;
-};
-
-export function listCashflows(portfolioId: string) {
-  return refRequest<CashflowListRow[]>(
-    `/cashflows?portfolio_id=${encodeURIComponent(portfolioId)}`,
-  );
-}
-
-export function submitFxConversion(payload: FxConversionRequest) {
-  return refRequest<FxConversionOut>('/fx-conversions', { method: 'POST', body: payload });
-}
-
-export function submitFxConversionsBulk(fxConversions: FxConversionRequest[]) {
-  return refRequest<FxConversionOut[]>('/fx-conversions/bulk', {
-    method: 'POST',
-    body: { fx_conversions: fxConversions },
-  });
-}
-
-export type FxConversionListRow = {
-  scope_id?: string | null;
-  fx_conversion_id?: string | null;
-  from_currency?: string | null;
-  from_amount?: number | null;
-  to_currency?: string | null;
-  to_amount?: number | null;
-  rate?: number | null;
-  fees_native?: number | null;
-  fees_currency?: string | null;
-  correction_of?: string | null;
-  event_ts: number;
-};
-
-export function listFxConversions(portfolioId: string) {
-  return refRequest<FxConversionListRow[]>(
-    `/fx-conversions?portfolio_id=${encodeURIComponent(portfolioId)}`,
-  );
-}
-
-export function submitTransferIn(payload: TransferInRequest) {
-  return refRequest<TransferInOut>('/transfer-ins', { method: 'POST', body: payload });
-}
-
-export function submitTransferInsBulk(transferIns: TransferInRequest[]) {
-  return refRequest<TransferInOut[]>('/transfer-ins/bulk', {
-    method: 'POST',
-    body: { transfer_ins: transferIns },
-  });
-}
-
-export type TransferInListRow = {
-  scope_id?: string | null;
-  instrument_id?: string | null;
-  transfer_id?: string | null;
-  lot_id?: string | null;
-  quantity?: number | null;
-  cost_basis_native?: number | null;
-  currency?: string | null;
-  acquisition_date?: number | null;
-  fx_rate_at_acquisition?: number | null;
-  correction_of?: string | null;
-  event_ts: number;
-};
-
-export function listTransferIns(portfolioId: string) {
-  return refRequest<TransferInListRow[]>(
-    `/transfer-ins?portfolio_id=${encodeURIComponent(portfolioId)}`,
-  );
-}
-
 // --- Option lifecycle + marks ----------------------------------------------
 
 export type DeliveredSide = 'buy' | 'sell';
@@ -443,21 +200,6 @@ export type OptionExpiryRequest = {
   correction_of?: string;
 };
 
-export type OptionLifecycleOut = {
-  portfolio_id: string;
-  instrument_id: string;
-  event_type: 'OPTION_EXERCISE' | 'OPTION_ASSIGNMENT' | 'OPTION_EXPIRY';
-  source_id: string;
-  underlying_id?: string | null;
-  settlement_price?: number | null;
-  delivered_qty?: number | null;
-  delivered_side?: DeliveredSide | null;
-  currency: string;
-  event_ts: number;
-  observation_id: string;
-  correction_of?: string | null;
-};
-
 export type OptionMarkRequest = {
   instrument_id: string;
   observed_at: number;
@@ -466,31 +208,6 @@ export type OptionMarkRequest = {
   updated_by: string;
   source?: string;
 };
-
-export type OptionMarkOut = {
-  instrument_id: string;
-  observed_at: number;
-  close: number;
-  currency: string;
-  source: string;
-  source_namespace: string;
-};
-
-export function submitOptionExercise(payload: OptionExerciseRequest) {
-  return refRequest<OptionLifecycleOut>('/option_exercises', { method: 'POST', body: payload });
-}
-
-export function submitOptionAssignment(payload: OptionAssignmentRequest) {
-  return refRequest<OptionLifecycleOut>('/option_assignments', { method: 'POST', body: payload });
-}
-
-export function submitOptionExpiry(payload: OptionExpiryRequest) {
-  return refRequest<OptionLifecycleOut>('/option_expiries', { method: 'POST', body: payload });
-}
-
-export function submitOptionMark(payload: OptionMarkRequest) {
-  return refRequest<OptionMarkOut>('/option_marks', { method: 'POST', body: payload });
-}
 
 // --- Instrument registration (parser-owned) ---------------------------------
 
