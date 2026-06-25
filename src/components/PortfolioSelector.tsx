@@ -21,9 +21,7 @@ export function PortfolioSelector() {
 
   const options = portfolios.map((p) => {
     const name = p.attributes?.name?.trim();
-    const label = name
-      ? `${name}  ·  ${p.base_currency}`
-      : `${p.portfolio_id.slice(0, 8)}…  ·  ${p.base_currency}`;
+    const label = `${name || 'Untitled portfolio'}  ·  ${p.base_currency}`;
     return { label, value: p.portfolio_id };
   });
 

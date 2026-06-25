@@ -11,6 +11,7 @@ const URL_PARAM = 'portfolio';
 type PortfolioContextValue = {
   portfolios: PortfolioEntity[];
   selected: string | null;
+  selectedPortfolio: PortfolioEntity | null;
   setSelected: (id: string | null) => void;
   loading: boolean;
   refresh: () => Promise<void>;
@@ -88,9 +89,15 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     [location.pathname, location.search, navigate],
   );
 
+  const selectedPortfolio = useMemo(
+    () => portfolios.find((p) => p.portfolio_id === validatedSelection) ?? null,
+    [portfolios, validatedSelection],
+  );
+
   const value: PortfolioContextValue = {
     portfolios,
     selected: validatedSelection,
+    selectedPortfolio,
     setSelected,
     loading,
     refresh,
