@@ -6,6 +6,38 @@ import (
 	"testing"
 )
 
+// TestTradeCreateFromRawInjectsSourceID verifies the pure helper that backs
+// the TRADE upsert path.
+func TestTradeCreateFromRawInjectsSourceID(t *testing.T) {
+	t.Run("source_id injected as TradeID", func(t *testing.T) {
+		raw := []byte(`{"event_type":"TRADE","source_id":"abc","price":1}`)
+		b, err := tradeCreateFromRaw(raw, "abc")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if b.TradeID == nil {
+			t.Fatal("want TradeID non-nil, got nil")
+		}
+		if *b.TradeID != "abc" {
+			t.Fatalf("want TradeID=abc, got %q", *b.TradeID)
+		}
+	})
+
+	t.Run("explicit trade_id preserved when sourceID empty", func(t *testing.T) {
+		raw := []byte(`{"event_type":"TRADE","trade_id":"xyz","price":1}`)
+		b, err := tradeCreateFromRaw(raw, "")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if b.TradeID == nil {
+			t.Fatal("want TradeID non-nil, got nil")
+		}
+		if *b.TradeID != "xyz" {
+			t.Fatalf("want TradeID=xyz, got %q", *b.TradeID)
+		}
+	})
+}
+
 func TestEventTypeFromRaw(t *testing.T) {
 	got, err := eventTypeFromRaw([]byte(`{"event_type":"trade","price":1}`))
 	if err != nil {
