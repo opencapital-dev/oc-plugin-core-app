@@ -21,7 +21,8 @@ import { appEvents } from '../lib/toast';
 export function AdminPage() {
   const styles = useStyles2(getStyles);
   const navigate = useNavigate();
-  const { portfolios, selected, refresh, setSelected, loading } = usePortfolio();
+  const { portfolios, selected, selectedPortfolio, refresh, setSelected, loading } = usePortfolio();
+  const selectedName = selectedPortfolio?.attributes?.name?.trim() || 'Untitled portfolio';
 
   const [name, setName] = useState('');
   const [baseCurrency, setBaseCurrency] = useState('USD');
@@ -100,7 +101,7 @@ export function AdminPage() {
         <>
           <div className={styles.heading}>
             <h2 className={styles.h2}>What would you like to do?</h2>
-            <p className={styles.sub}>Working on portfolio &ldquo;{selected}&rdquo;.</p>
+            <p className={styles.sub}>Working on portfolio &ldquo;{selectedName}&rdquo;.</p>
           </div>
 
           <div className={styles.tiles}>
