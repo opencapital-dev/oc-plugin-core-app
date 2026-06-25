@@ -6,163 +6,1896 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Analytics",
+      "type": "link",
+      "icon": "external link",
+      "url": "/d/metrics-analytics-numbat?var-portfolio_id=${portfolio_id}&${__url_time_range}",
+      "targetBlank": false
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "nav_base",
+          "values": false
+        },
+        "text": {
+          "titleSize": 20,
+          "valueSize": 32
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_nav"
+        }
+      ],
+      "title": "NAV",
+      "type": "stat",
       "id": 1,
       "gridPos": {
         "h": 6,
         "w": 3,
         "x": 0,
         "y": 0
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_nav",
-        "name": "core-app/portfolio_nav"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "equity_value_base",
+          "values": false
+        },
+        "text": {
+          "titleSize": 20,
+          "valueSize": 32
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_equity_value"
+        }
+      ],
+      "title": "Equity value",
+      "type": "stat",
       "id": 2,
       "gridPos": {
         "h": 6,
         "w": 3,
         "x": 3,
         "y": 0
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_equity_value",
-        "name": "core-app/portfolio_equity_value"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "cash_value_base",
+          "values": false
+        },
+        "text": {
+          "titleSize": 20,
+          "valueSize": 32
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_cash_value"
+        }
+      ],
+      "title": "Cash value",
+      "type": "stat",
       "id": 3,
       "gridPos": {
         "h": 6,
         "w": 3,
         "x": 6,
         "y": 0
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_cash_value",
-        "name": "core-app/portfolio_cash_value"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "total_gross_avg_base",
+          "values": false
+        },
+        "text": {
+          "titleSize": 20,
+          "valueSize": 32
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_gross_pnl"
+        }
+      ],
+      "title": "Total gross P&L",
+      "type": "stat",
       "id": 4,
       "gridPos": {
         "h": 6,
         "w": 3,
         "x": 9,
         "y": 0
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_gross_pnl",
-        "name": "core-app/portfolio_gross_pnl"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "total_net_avg_base",
+          "values": false
+        },
+        "text": {
+          "titleSize": 20,
+          "valueSize": 32
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_net_pnl"
+        }
+      ],
+      "title": "Total net P&L",
+      "type": "stat",
       "id": 5,
       "gridPos": {
         "h": 6,
         "w": 3,
         "x": 12,
         "y": 0
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_net_pnl",
-        "name": "core-app/portfolio_net_pnl"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "instrument_count",
+          "values": false
+        },
+        "text": {
+          "titleSize": 20,
+          "valueSize": 32
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_instruments_held"
+        }
+      ],
+      "title": "Instruments held",
+      "type": "stat",
       "id": 6,
       "gridPos": {
         "h": 6,
         "w": 3,
         "x": 15,
         "y": 0
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_instruments_held",
-        "name": "core-app/portfolio_instruments_held"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "description": "Cash + Equity stacked, NAV overlaid as a line. Stacking shows portfolio composition over time; the NAV line confirms NAV = cash + equity.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 35,
+            "gradientMode": "opacity",
+            "pointSize": 0,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "normal",
+              "group": "composition"
+            },
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cash"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3D85C6"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Equity"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69138"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "NAV"
+            },
+            "properties": [
+              {
+                "id": "custom.stacking",
+                "value": {
+                  "mode": "none"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.gradientMode",
+                "value": "none"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "rgba(255,255,255,0.95)"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_decomposition"
+        }
+      ],
+      "title": "Portfolio decomposition",
+      "type": "timeseries",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "portfolio_id": true,
+              "instrument_count": true,
+              "total_gross_avg_base": true,
+              "total_net_avg_base": true,
+              "realized_equity_avg_base": true,
+              "realized_forex_avg_base": true,
+              "unrealized_equity_avg_base": true,
+              "unrealized_forex_avg_base": true,
+              "realized_interest_base": true,
+              "realized_dividends_base": true,
+              "fees_base": true
+            },
+            "renameByName": {
+              "cash_value_base": "Cash",
+              "equity_value_base": "Equity",
+              "nav_base": "NAV"
+            },
+            "indexByName": {}
+          }
+        }
+      ],
       "id": 10,
       "gridPos": {
         "h": 10,
         "w": 24,
         "x": 0,
         "y": 6
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_decomposition",
-        "name": "core-app/portfolio_decomposition"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "description": "Stacked areas: positive sources (equity, forex, interest, dividends) build up gross P&L (top of positive stack = gross); fees stack below zero. Total net = gross − fees, overlaid as a line.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 70,
+            "gradientMode": "opacity",
+            "stacking": {
+              "mode": "normal",
+              "group": "pnl"
+            },
+            "axisPlacement": "auto",
+            "axisCenteredZero": true,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "pointSize": 0,
+            "spanNulls": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Equity (realized)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#1F77B4"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Forex (realized)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#9467BD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Equity (unrealized)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#7AB9DB"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Forex (unrealized)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#C5B0D5"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Interest"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#17BECF"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dividends"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#2CA02C"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fees"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#D62728"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total net"
+            },
+            "properties": [
+              {
+                "id": "custom.stacking",
+                "value": {
+                  "mode": "none"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "smooth"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_pnl_breakdown"
+        }
+      ],
+      "title": "P&L breakdown",
+      "type": "timeseries",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "binary",
+            "binary": {
+              "left": "fees_base",
+              "operator": "*",
+              "right": "-1"
+            },
+            "alias": "Fees",
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "portfolio_id": true,
+              "nav_base": true,
+              "equity_value_base": true,
+              "cash_value_base": true,
+              "instrument_count": true,
+              "total_gross_avg_base": true,
+              "fees_base": true
+            },
+            "renameByName": {
+              "realized_equity_avg_base": "Equity (realized)",
+              "realized_forex_avg_base": "Forex (realized)",
+              "unrealized_equity_avg_base": "Equity (unrealized)",
+              "unrealized_forex_avg_base": "Forex (unrealized)",
+              "realized_interest_base": "Interest",
+              "realized_dividends_base": "Dividends",
+              "total_net_avg_base": "Total net"
+            },
+            "indexByName": {}
+          }
+        }
+      ],
       "id": 11,
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
         "y": 16
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_pnl_breakdown",
-        "name": "core-app/portfolio_pnl_breakdown"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "description": "Latest snapshot per instrument. Direction badge shows long/short/flat. PnL columns colored by sign (gradient red→green). Quantity + last price as inline gauges across the row range.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "custom": {
+            "align": "right",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Instrument"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "left"
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open instrument view",
+                    "url": "/d/metrics-instrument?var-portfolio_id=${portfolio_id}&var-instrument_id=${__data.fields.Instrument}&${__url_time_range}",
+                    "targetBlank": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Direction"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 90
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "long": {
+                        "text": "▲ LONG",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "short": {
+                        "text": "▼ SHORT",
+                        "color": "red",
+                        "index": 1
+                      },
+                      "flat": {
+                        "text": "— FLAT",
+                        "color": "transparent",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Currency"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Quantity"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg cost"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last price"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 4
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-BlPu"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Position size (base)"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3D85C6"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Realized|Unrealized).*"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-red",
+                      "value": null
+                    },
+                    {
+                      "color": "transparent",
+                      "value": -0.0001
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0.0001
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Lots"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 60
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text-secondary"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "IRR"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-red",
+                      "value": null
+                    },
+                    {
+                      "color": "transparent",
+                      "value": -0.0001
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0.0001
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 0.2
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": true,
+          "reducer": [
+            "sum"
+          ],
+          "fields": [
+            "Position size (base)",
+            "Realized equity (native)",
+            "Realized equity (base)",
+            "Realized forex (base)",
+            "Unrealized equity (native)",
+            "Unrealized equity (base)",
+            "Unrealized forex (base)"
+          ]
+        },
+        "sortBy": [
+          {
+            "displayName": "Position size (base)",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_equity_positions"
+        }
+      ],
+      "title": "Equity positions — latest per instrument",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "portfolio_id": true
+            },
+            "renameByName": {
+              "instrument_id": "Instrument",
+              "direction": "Direction",
+              "quantity": "Quantity",
+              "currency": "Currency",
+              "avg_cost_avg_native": "Avg cost",
+              "last_price": "Last price",
+              "realized_equity_avg_base": "Realized equity (base)",
+              "unrealized_equity_avg_base": "Unrealized equity (base)",
+              "lot_count": "Lots",
+              "portfolio_id": "portfolio_id",
+              "avg_cost_avg_base": "avg_cost_avg_base",
+              "ts": "ts",
+              "realized_equity_avg_native": "Realized equity (native)",
+              "realized_forex_avg_base": "Realized forex (base)",
+              "unrealized_equity_avg_native": "Unrealized equity (native)",
+              "unrealized_forex_avg_base": "Unrealized forex (base)",
+              "position_size_base": "Position size (base)"
+            }
+          }
+        }
+      ],
       "id": 20,
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
         "y": 28
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_equity_positions",
-        "name": "core-app/portfolio_equity_positions"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "description": "Latest snapshot per cash bucket. Currency badge, gauge bars on values, sign-coloured PnL cells. Total gross / Total net are highlighted on the right.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "custom": {
+            "align": "right",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Currency"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 90
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "GBP": {
+                        "text": "£ GBP",
+                        "color": "blue",
+                        "index": 0
+                      },
+                      "USD": {
+                        "text": "$ USD",
+                        "color": "green",
+                        "index": 1
+                      },
+                      "EUR": {
+                        "text": "€ EUR",
+                        "color": "purple",
+                        "index": 2
+                      },
+                      "CAD": {
+                        "text": "C$ CAD",
+                        "color": "orange",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Balance (native)"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3D85C6"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cash value (base)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3D85C6"
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Equity value (base)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69138"
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total value (base)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "lcd"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "white"
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Realized|Unrealized|Fees).*"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-red",
+                      "value": null
+                    },
+                    {
+                      "color": "transparent",
+                      "value": -0.0001
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0.0001
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fees (base)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "transparent",
+                      "value": null
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 0.0001
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total gross (base)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-red",
+                      "value": null
+                    },
+                    {
+                      "color": "transparent",
+                      "value": -0.0001
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0.0001
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total net (base)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-red",
+                      "value": null
+                    },
+                    {
+                      "color": "transparent",
+                      "value": -0.0001
+                    },
+                    {
+                      "color": "transparent",
+                      "value": 0.0001
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Deposits|Withdrawals).*"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text-secondary"
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": true,
+          "reducer": [
+            "sum"
+          ],
+          "fields": [
+            "Cash value (base)",
+            "Equity value (base)",
+            "Total value (base)",
+            "Realized equity (base)",
+            "Realized forex (base)",
+            "Realized interest (base)",
+            "Realized dividends (base)",
+            "Fees (base)",
+            "Total gross (base)",
+            "Total net (base)"
+          ]
+        },
+        "sortBy": [
+          {
+            "displayName": "Total value (base)",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_cash_positions"
+        }
+      ],
+      "title": "Cash positions — latest per currency",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "portfolio_id": true,
+              "ts": true
+            },
+            "renameByName": {
+              "currency": "Currency",
+              "balance_native": "Balance (native)",
+              "cash_value_base": "Cash value (base)",
+              "realized_interest_base": "Realized interest (base)",
+              "realized_dividends_base": "Realized dividends (base)",
+              "realized_fx_avg_base": "Realized FX (base)",
+              "unrealized_fx_avg_base": "Unrealized FX (base)",
+              "fees_base": "Fees (base)",
+              "deposits_cumulative_native": "Deposits (native)",
+              "withdrawals_cumulative_native": "Withdrawals (native)"
+            },
+            "indexByName": {}
+          }
+        }
+      ],
       "id": 21,
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
         "y": 40
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_cash_positions",
-        "name": "core-app/portfolio_cash_positions"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "description": "Position-size allocation across instruments held as of the end of the dashboard window. Top 10 instruments by position size (quantity × avg cost in base currency); remainder grouped as 'Others'.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^Others"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text-secondary"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_allocation"
+        }
+      ],
+      "title": "Instrument allocation",
+      "transformations": [
+        {
+          "id": "rowsToFields",
+          "options": {}
+        }
+      ],
+      "type": "piechart",
       "id": 40,
       "gridPos": {
         "h": 10,
         "w": 12,
         "x": 0,
         "y": 59
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_allocation",
-        "name": "core-app/portfolio_allocation"
       }
     },
     {
+      "datasource": {
+        "type": "core-datasource",
+        "uid": "core-datasource"
+      },
+      "description": "Cash vs equity split of portfolio NAV as of the end of the dashboard window.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "unit": "locale",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cash"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3D85C6"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Equity"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69138"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "core-datasource",
+            "uid": "core-datasource"
+          },
+          "ref": "core-app/portfolio_cash_vs_equity"
+        }
+      ],
+      "title": "Cash vs equity",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "portfolio_id": true,
+              "ts": true,
+              "nav_base": true,
+              "instrument_count": true,
+              "total_gross_avg_base": true,
+              "total_net_avg_base": true,
+              "realized_equity_avg_base": true,
+              "realized_forex_avg_base": true,
+              "unrealized_equity_avg_base": true,
+              "unrealized_forex_avg_base": true,
+              "realized_interest_base": true,
+              "realized_dividends_base": true,
+              "fees_base": true
+            },
+            "renameByName": {
+              "cash_value_base": "Cash",
+              "equity_value_base": "Equity"
+            },
+            "indexByName": {}
+          }
+        }
+      ],
+      "type": "piechart",
       "id": 41,
       "gridPos": {
         "h": 10,
         "w": 12,
         "x": 12,
         "y": 59
-      },
-      "libraryPanel": {
-        "uid": "core-app-portfolio_cash_vs_equity",
-        "name": "core-app/portfolio_cash_vs_equity"
       }
     }
   ],
@@ -184,26 +1917,6 @@
         "query": {
           "refId": "V",
           "ref": "core-app/portfolios"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 1,
-        "multi": false,
-        "includeAll": false,
-        "options": [],
-        "current": {}
-      },
-      {
-        "name": "base_currency",
-        "label": "Base currency",
-        "type": "query",
-        "datasource": {
-          "type": "core-datasource",
-          "uid": "core-datasource"
-        },
-        "query": {
-          "refId": "V",
-          "selector": "portfolio{portfolio=\"${portfolio_id}\"}[base_currency] @latest"
         },
         "refresh": 1,
         "regex": "",
@@ -242,27 +1955,6 @@
         "query": "Open : open, Closed : closed, All : all",
         "multi": false,
         "includeAll": false
-      },
-      {
-        "name": "benchmark_instrument_id",
-        "type": "textbox",
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "query": "",
-        "label": "Benchmark"
-      },
-      {
-        "name": "primary_benchmark",
-        "type": "textbox",
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "query": "",
-        "label": "",
-        "hide": 2
       },
       {
         "name": "sample_interval",

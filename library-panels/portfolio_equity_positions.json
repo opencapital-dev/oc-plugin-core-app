@@ -51,7 +51,7 @@
             "value": [
               {
                 "title": "Open instrument view",
-                "url": "/d/metrics-instrument?var-portfolio_id=${portfolio_id}&var-base_currency=${base_currency}&var-instrument_id=${__data.fields.Instrument}&${__url_time_range}",
+                "url": "/d/metrics-instrument?var-portfolio_id=${portfolio_id}&var-instrument_id=${__data.fields.Instrument}&${__url_time_range}",
                 "targetBlank": false
               }
             ]
@@ -378,6 +378,9 @@
     {
       "id": "organize",
       "options": {
+        "excludeByName": {
+          "portfolio_id": true
+        },
         "renameByName": {
           "instrument_id": "Instrument",
           "direction": "Direction",
