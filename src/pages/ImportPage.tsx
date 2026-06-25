@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
 import {
   Alert,
-  Badge,
   Button,
   Field,
   FileDropzone,
@@ -18,31 +17,10 @@ import { Page } from '../components/Page';
 import { appEvents } from '../lib/toast';
 
 import {
-  listInstruments,
   listPortfolios,
-  submitCashflowsBulk,
-  submitDividendsBulk,
-  submitFxConversionsBulk,
-  submitOptionAssignment,
-  submitOptionExercise,
-  submitOptionExpiry,
-  submitOptionMark,
-  submitTradesBulk,
-  submitTransferInsBulk,
-  type CashflowRequest,
-  type DividendRequest,
-  type FxConversionRequest,
-  type InstrumentEntity,
-  type OptionAssignmentRequest,
-  type OptionExerciseRequest,
-  type OptionExpiryRequest,
-  type OptionMarkRequest,
+  writeEventsBulk,
   type PortfolioEntity,
-  type TradeRequest,
-  type TransferInRequest,
 } from '../api/reference';
-import type { InstrumentRegistration } from '../lib/import/types';
-import { LotsStep } from '../components/import/LotsStep';
 import { DEFAULT_UPDATED_BY } from '../lib/attributes';
 import {
   brokerRowsToEvents,
@@ -52,30 +30,13 @@ import {
 } from '../lib/import';
 import { withInstrumentIdentity } from '../lib/import/withInstrumentIdentity';
 import { formatEventMicros } from '../lib/time';
+import type { ParseResult } from '../lib/import/types';
+import { EventsTable, type FamilyFilter } from '../components/events/EventsTable';
+import { EventDrawer, type DrawerState } from '../components/events/EventDrawer';
+import { brokerResultToInputs, inputsToRows } from '../lib/events/fromBrokerResult';
+import type { EventInput } from '../lib/events/types';
 
-type Step = 'upload' | 'map' | 'lots' | 'confirm' | 'done';
-
-type Mapping = {
-  instrumentId: string;
-  tradeCount: number;
-  exists: boolean;
-  existingCurrency: string | null;
-  pickedCurrency: string;
-};
-
-type RunResult = {
-  instrumentsUpdated: string[];
-  tradesImported: number;
-  transferInsImported: number;
-  dividendsImported: number;
-  cashflowsImported: number;
-  fxConversionsImported: number;
-  optionExercisesImported: number;
-  optionAssignmentsImported: number;
-  optionExpiriesImported: number;
-  optionMarksImported: number;
-  errors: string[];
-};
+type Step = 'upload' | 'review' | 'done';
 
 type IbkrMeta = {
   account: string;
@@ -126,7 +87,6 @@ export function ImportPage() {
   const styles = useStyles2(getStyles);
 
   const [portfolios, setPortfolios] = useState<PortfolioEntity[]>([]);
-  const [instruments, setInstruments] = useState<InstrumentEntity[]>([]);
 
   const [step, setStep] = useState<Step>('upload');
   const [portfolioId, setPortfolioId] = useState('');
@@ -134,34 +94,45 @@ export function ImportPage() {
   const [updatedBy, setUpdatedBy] = useState(DEFAULT_UPDATED_BY);
   const [brokerChoice, setBrokerChoice] = useState<BrokerFormat | 'auto'>('auto');
 
-  const [parsedTrades, setParsedTrades] = useState<TradeRequest[]>([]);
-  const [parsedDividends, setParsedDividends] = useState<DividendRequest[]>([]);
-  const [parsedCashflows, setParsedCashflows] = useState<CashflowRequest[]>([]);
-  const [parsedFxConversions, setParsedFxConversions] = useState<FxConversionRequest[]>([]);
-  const [parsedTransferIns, setParsedTransferIns] = useState<TransferInRequest[]>([]);
-  const [parsedOptionExercises, setParsedOptionExercises] = useState<OptionExerciseRequest[]>([]);
-  const [parsedOptionAssignments, setParsedOptionAssignments] = useState<OptionAssignmentRequest[]>([]);
-  const [parsedOptionExpiries, setParsedOptionExpiries] = useState<OptionExpiryRequest[]>([]);
-  const [parsedOptionMarks, setParsedOptionMarks] = useState<OptionMarkRequest[]>([]);
-  const [parsedInstrumentsToRegister, setParsedInstrumentsToRegister] = useState<InstrumentRegistration[]>([]);
-  const [skippedRows, setSkippedRows] = useState(0);
-  const [parseErrors, setParseErrors] = useState<string[]>([]);
-  const [mappings, setMappings] = useState<Mapping[]>([]);
-  const [running, setRunning] = useState(false);
-  const [result, setResult] = useState<RunResult | null>(null);
-  const [format, setFormat] = useState<BrokerFormat | null>(null);
-  const [ibkrMeta, setIbkrMeta] = useState<IbkrMeta | null>(null);
+  // Parse result — kept so upload-step info (format / ibkr meta / errors) persists on back-nav.
+  const [parseResult, setParseResult] = useState<ParseResult | null>(null);
 
-  const refreshInstruments = async () => {
-    if (!portfolioId) {
-      return;
+  // The flat EventInput[] the review table operates on. Editing / removing updates this.
+  const [previewInputs, setPreviewInputs] = useState<EventInput[]>([]);
+
+  // Review step UI state.
+  const [reviewQuery, setReviewQuery] = useState('');
+  const [reviewFamily, setReviewFamily] = useState<FamilyFilter>('all');
+  const [reviewDrawer, setReviewDrawer] = useState<DrawerState | null>(null);
+
+  // Done step.
+  const [importedCount, setImportedCount] = useState<number | null>(null);
+  const [running, setRunning] = useState(false);
+
+  // Derived from parseResult so we don't need separate state variables.
+  const format = parseResult?.format ?? null;
+  const ibkrMeta: IbkrMeta | null =
+    format === 'ibkr_statement' && parseResult
+      ? {
+          account: parseResult.account ?? '',
+          baseCurrency: (parseResult.baseCurrency ?? '').toUpperCase(),
+          period: parseResult.period ?? null,
+        }
+      : null;
+  const skippedRows = parseResult?.skipped ?? 0;
+  const parseErrors = parseResult?.errors ?? [];
+
+  const selectedPortfolio = portfolios.find((p) => p.portfolio_id === portfolioId) ?? null;
+  const baseCurrency = selectedPortfolio?.base_currency;
+
+  // Cash-flow simulation — computed once from the original parse result and shown
+  // above the review table as an early-warning of potential overdrafts.
+  const cashSim = useMemo(() => {
+    if (!parseResult) {
+      return { timelines: {}, errors: [] };
     }
-    try {
-      setInstruments(await listInstruments(portfolioId));
-    } catch {
-      // Non-fatal; user can retry.
-    }
-  };
+    return simulateImportedCash(parseResult, parseResult.format);
+  }, [parseResult]);
 
   useEffect(() => {
     void (async () => {
@@ -175,105 +146,17 @@ export function ImportPage() {
     })();
   }, []);
 
-  useEffect(() => {
-    if (!portfolioId) {
-      setInstruments([]);
-      return;
-    }
-    void (async () => {
-      try {
-        setInstruments(await listInstruments(portfolioId));
-      } catch {
-        // Non-fatal.
-      }
-    })();
-  }, [portfolioId]);
-
-  const tradesByInstrument = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const t of parsedTrades) {
-      m.set(t.instrument_id, (m.get(t.instrument_id) ?? 0) + 1);
-    }
-    return m;
-  }, [parsedTrades]);
-
   function reset() {
     setStep('upload');
-    setParsedTrades([]);
-    setParsedDividends([]);
-    setParsedCashflows([]);
-    setParsedFxConversions([]);
-    setParsedTransferIns([]);
-    setSkippedRows(0);
-    setParseErrors([]);
-    setMappings([]);
-    setResult(null);
-    setFormat(null);
-    setIbkrMeta(null);
+    setParseResult(null);
+    setPreviewInputs([]);
+    setImportedCount(null);
+    setReviewDrawer(null);
   }
 
-  const selectedPortfolio = portfolios.find((p) => p.portfolio_id === portfolioId) ?? null;
-  const baseCurrency = selectedPortfolio?.base_currency;
-
-  const fxByPair = useMemo(() => {
-    const m = new Map<string, { count: number; from_total: number; to_total: number }>();
-    for (const fx of parsedFxConversions) {
-      const k = `${fx.from_currency}→${fx.to_currency}`;
-      const cur = m.get(k) ?? { count: 0, from_total: 0, to_total: 0 };
-      cur.count += 1;
-      cur.from_total += fx.from_amount;
-      cur.to_total += fx.to_amount;
-      m.set(k, cur);
-    }
-    return m;
-  }, [parsedFxConversions]);
-
-  const cashSim = useMemo(() => {
-    if (!format) {
-      return { timelines: {}, errors: [] };
-    }
-    return simulateImportedCash(
-      {
-        trades: parsedTrades,
-        dividends: parsedDividends,
-        cashflows: parsedCashflows,
-        fxConversions: parsedFxConversions,
-        transferIns: parsedTransferIns,
-        optionExercises: parsedOptionExercises,
-        optionAssignments: parsedOptionAssignments,
-        optionExpiries: parsedOptionExpiries,
-        optionMarks: parsedOptionMarks,
-        instrumentsToRegister: parsedInstrumentsToRegister,
-        skipped: 0,
-        errors: [],
-      },
-      format
-    );
-  }, [
-    format,
-    parsedTrades,
-    parsedDividends,
-    parsedCashflows,
-    parsedFxConversions,
-    parsedTransferIns,
-  ]);
-
   async function handleCsv(text: string) {
-    setParseErrors([]);
-    setParsedTrades([]);
-    setParsedDividends([]);
-    setParsedCashflows([]);
-    setParsedFxConversions([]);
-    setParsedTransferIns([]);
-    setParsedOptionExercises([]);
-    setParsedOptionAssignments([]);
-    setParsedOptionExpiries([]);
-    setParsedOptionMarks([]);
-    setParsedInstrumentsToRegister([]);
-    setMappings([]);
-    setSkippedRows(0);
-    setFormat(null);
-    setIbkrMeta(null);
+    setParseResult(null);
+    setPreviewInputs([]);
     if (!portfolioId) {
       appEvents.emit(AppEvents.alertError, ['Pick a portfolio first.']);
       return;
@@ -291,7 +174,6 @@ export function ImportPage() {
         },
         brokerChoice
       );
-      setFormat(r.format);
 
       if (r.format === 'ibkr_statement') {
         const meta: IbkrMeta = {
@@ -299,7 +181,6 @@ export function ImportPage() {
           baseCurrency: (r.baseCurrency ?? '').toUpperCase(),
           period: r.period ?? null,
         };
-        setIbkrMeta(meta);
         const portfolioBase = (portfolio?.base_currency ?? '').toUpperCase();
         if (meta.baseCurrency && portfolioBase && meta.baseCurrency !== portfolioBase) {
           throw new Error(
@@ -329,10 +210,9 @@ export function ImportPage() {
         optionAssignments,
         optionExpiries,
         optionMarks,
-        instrumentsToRegister,
         skipped,
-        errors,
       } = r;
+
       if (
         trades.length === 0 &&
         dividends.length === 0 &&
@@ -344,44 +224,22 @@ export function ImportPage() {
         optionExpiries.length === 0 &&
         optionMarks.length === 0
       ) {
-        setParseErrors(errors);
-        setSkippedRows(skipped);
+        // Store result so errors/skipped are visible on the upload step.
+        setParseResult(r);
         throw new Error(
           'No trade / dividend / cashflow / fx-conversion / transfer-in / option rows found in CSV.'
         );
       }
-      setParsedTrades(trades);
-      setParsedDividends(dividends);
-      setParsedCashflows(cashflows);
-      setParsedFxConversions(fxConversions);
-      setParsedTransferIns(transferIns);
-      setParsedOptionExercises(optionExercises);
-      setParsedOptionAssignments(optionAssignments);
-      setParsedOptionExpiries(optionExpiries);
-      setParsedOptionMarks(optionMarks);
-      setParsedInstrumentsToRegister(instrumentsToRegister);
-      setSkippedRows(skipped);
-      setParseErrors(errors);
 
-      // Mappings UI: equity only. Options are fully specified by OCC parse
-      // (kind + strike + expiry + multiplier locked), so operator currency
-      // override doesn't apply; they auto-register at confirm.
-      const instrumentMap = new Map(instruments.map((i) => [i.instrument_id, i]));
-      const initial: Mapping[] = instrumentsToRegister
-        .filter((reg) => reg.kind === 'equity')
-        .map((reg) => {
-          const existing = instrumentMap.get(reg.instrument_id);
-          const tradeCount = trades.filter((t) => t.instrument_id === reg.instrument_id).length;
-          return {
-            instrumentId: reg.instrument_id,
-            tradeCount,
-            exists: !!existing,
-            existingCurrency: existing?.currency ?? null,
-            pickedCurrency: existing?.currency ?? reg.currency ?? '',
-          };
-        });
-      setMappings(initial);
-      setStep('map');
+      // Stamp instrument identity onto trades exactly as the old runImport did,
+      // then flatten everything into EventInputs for the review table.
+      const stampedTrades = withInstrumentIdentity(r.trades, r.instrumentsToRegister);
+      const inputs = brokerResultToInputs({ ...r, trades: stampedTrades });
+
+      setParseResult(r);
+      setPreviewInputs(inputs);
+      setStep('review');
+
       const cashflowBreakdown = (() => {
         const counts: Record<string, number> = {};
         for (const c of cashflows) {
@@ -403,152 +261,26 @@ export function ImportPage() {
     }
   }
 
-  function patch(idx: number, p: Partial<Mapping>) {
-    setMappings((cur) => {
-      const next = [...cur];
-      next[idx] = { ...next[idx]!, ...p };
-      return next;
-    });
-  }
-
-  function goLots() {
-    if (parsedTransferIns.length === 0) {
-      setStep('confirm');
-      return;
-    }
-    setStep('lots');
-  }
-
-  function applyLots(flattened: TransferInRequest[]) {
-    setParsedTransferIns(flattened);
-    setStep('confirm');
-  }
-
-  async function runImport() {
+  const commitReview = async () => {
     setRunning(true);
-    const r: RunResult = {
-      instrumentsUpdated: [],
-      tradesImported: 0,
-      transferInsImported: 0,
-      dividendsImported: 0,
-      cashflowsImported: 0,
-      fxConversionsImported: 0,
-      optionExercisesImported: 0,
-      optionAssignmentsImported: 0,
-      optionExpiriesImported: 0,
-      optionMarksImported: 0,
-      errors: [],
-    };
     try {
-      const tradesToSend = withInstrumentIdentity(parsedTrades, parsedInstrumentsToRegister);
-      if (tradesToSend.length > 0) {
-        try {
-          await submitTradesBulk(tradesToSend);
-          r.tradesImported = tradesToSend.length;
-        } catch (err) {
-          r.errors.push(`Trades bulk submit: ${errMsg(err)}`);
-        }
-      }
-
-      if (parsedTransferIns.length > 0) {
-        try {
-          await submitTransferInsBulk(parsedTransferIns);
-          r.transferInsImported = parsedTransferIns.length;
-        } catch (err) {
-          r.errors.push(`Transfer-ins bulk submit: ${errMsg(err)}`);
-        }
-      }
-
-      const fxToSend = parsedFxConversions;
-      if (fxToSend.length > 0) {
-        try {
-          await submitFxConversionsBulk(fxToSend);
-          r.fxConversionsImported = fxToSend.length;
-        } catch (err) {
-          r.errors.push(`FX conversions bulk submit: ${errMsg(err)}`);
-        }
-      }
-
-      const dividendsToSend = parsedDividends;
-      if (dividendsToSend.length > 0) {
-        try {
-          await submitDividendsBulk(dividendsToSend);
-          r.dividendsImported = dividendsToSend.length;
-        } catch (err) {
-          r.errors.push(`Dividends bulk submit: ${errMsg(err)}`);
-        }
-      }
-
-      if (parsedCashflows.length > 0) {
-        try {
-          await submitCashflowsBulk(parsedCashflows);
-          r.cashflowsImported = parsedCashflows.length;
-        } catch (err) {
-          r.errors.push(`Cashflows bulk submit: ${errMsg(err)}`);
-        }
-      }
-
-      for (const ev of parsedOptionExpiries) {
-        try {
-          await submitOptionExpiry(ev);
-          r.optionExpiriesImported += 1;
-        } catch (err) {
-          r.errors.push(`Option expiry ${ev.instrument_id}: ${errMsg(err)}`);
-        }
-      }
-      for (const ev of parsedOptionAssignments) {
-        try {
-          await submitOptionAssignment(ev);
-          r.optionAssignmentsImported += 1;
-        } catch (err) {
-          r.errors.push(`Option assignment ${ev.instrument_id}: ${errMsg(err)}`);
-        }
-      }
-      for (const ev of parsedOptionExercises) {
-        try {
-          await submitOptionExercise(ev);
-          r.optionExercisesImported += 1;
-        } catch (err) {
-          r.errors.push(`Option exercise ${ev.instrument_id}: ${errMsg(err)}`);
-        }
-      }
-      for (const ev of parsedOptionMarks) {
-        try {
-          await submitOptionMark(ev);
-          r.optionMarksImported += 1;
-        } catch (err) {
-          r.errors.push(`Option mark ${ev.instrument_id}: ${errMsg(err)}`);
-        }
-      }
-
-      await refreshInstruments();
-      setResult(r);
+      await writeEventsBulk(previewInputs);
+      const count = previewInputs.length;
+      setImportedCount(count);
       setStep('done');
-      if (r.errors.length === 0) {
-        const optionParts: string[] = [];
-        if (r.optionExpiriesImported) optionParts.push(`${r.optionExpiriesImported} option expiry(s)`);
-        if (r.optionAssignmentsImported) optionParts.push(`${r.optionAssignmentsImported} option assignment(s)`);
-        if (r.optionExercisesImported) optionParts.push(`${r.optionExercisesImported} option exercise(s)`);
-        if (r.optionMarksImported) optionParts.push(`${r.optionMarksImported} option mark(s)`);
-        const optionSuffix = optionParts.length ? `, ${optionParts.join(', ')}` : '';
-        appEvents.emit(AppEvents.alertSuccess, [
-          `Imported ${r.tradesImported} trade(s), ${r.transferInsImported} transfer-in(s), ${r.dividendsImported} dividend(s), ${r.cashflowsImported} cashflow(s), ${r.fxConversionsImported} fx-conversion(s)${optionSuffix}.`,
-        ]);
-      } else {
-        appEvents.emit(AppEvents.alertWarning, [
-          `Import finished with ${r.errors.length} warning(s).`,
-        ]);
-      }
+      appEvents.emit(AppEvents.alertSuccess, [`Imported ${count} events.`]);
+    } catch (err) {
+      appEvents.emit(AppEvents.alertError, [err instanceof Error ? err.message : 'Import failed']);
     } finally {
       setRunning(false);
     }
-  }
+  };
 
   return (
     <Page navId="portfolio-import">
       <Page.Contents>
         <Stack direction="column" gap={3}>
-          <Stepper step={step} hasTransferIns={parsedTransferIns.length > 0} />
+          <Stepper step={step} />
 
           {step === 'upload' ? (
             <div className={styles.panel}>
@@ -651,99 +383,8 @@ export function ImportPage() {
             </div>
           ) : null}
 
-          {step === 'map' ? (
+          {step === 'review' ? (
             <div className={styles.panel}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
-                <h2 className={styles.heading}>
-                  2. Review instruments ({mappings.length})
-                </h2>
-                <Stack direction="row" gap={1}>
-                  <Button variant="secondary" size="sm" onClick={reset}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={goLots}>
-                    {parsedTransferIns.length > 0 ? 'Next: Lot detail →' : 'Next: Confirm →'}
-                  </Button>
-                </Stack>
-              </Stack>
-              <div className={styles.tableScroll}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Instrument</th>
-                      <th>Trades</th>
-                      <th>Status</th>
-                      <th>CCY</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mappings.map((m, idx) => (
-                      <tr key={m.instrumentId}>
-                        <td>
-                          <strong>{m.instrumentId}</strong>
-                        </td>
-                        <td>{m.tradeCount}</td>
-                        <td>
-                          {m.exists ? (
-                            <Badge color="green" text="exists" />
-                          ) : (
-                            <Badge color="blue" text="new" />
-                          )}
-                        </td>
-                        <td>
-                          <Input
-                            width={8}
-                            value={m.pickedCurrency}
-                            onChange={(e) =>
-                              patch(idx, { pickedCurrency: e.currentTarget.value.toUpperCase() })
-                            }
-                            placeholder="GBP"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className={styles.hint}>
-                New instruments are created with just an ID + currency. Vendor mappings
-                (Yahoo symbols, etc.) are managed inside their respective ingestor plugins.
-              </p>
-            </div>
-          ) : null}
-
-          {step === 'lots' ? (
-            <div className={styles.panel}>
-              <h2 className={styles.heading}>3. Acquisition lot detail</h2>
-              <LotsStep
-                transfers={parsedTransferIns}
-                onBack={() => setStep('map')}
-                onConfirm={applyLots}
-              />
-            </div>
-          ) : null}
-
-          {step === 'confirm' ? (
-            <div className={styles.panel}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
-                <h2 className={styles.heading}>
-                  {parsedTransferIns.length > 0 ? '4' : '3'}. Confirm import
-                </h2>
-                <Stack direction="row" gap={1}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() =>
-                      parsedTransferIns.length > 0 ? setStep('lots') : setStep('map')
-                    }
-                  >
-                    ← Back
-                  </Button>
-                  <Button onClick={() => void runImport()} disabled={running}>
-                    {running ? 'Running…' : 'Run import'}
-                  </Button>
-                </Stack>
-              </Stack>
               {cashSim.errors.length > 0 ? (
                 <Alert
                   severity="warning"
@@ -767,28 +408,100 @@ export function ImportPage() {
                   </ul>
                 </Alert>
               ) : null}
-              <SummaryList
-                mappings={mappings}
-                tradesByInstrument={tradesByInstrument}
-                totalTrades={parsedTrades.length}
-                portfolioId={portfolioId}
-                baseCurrency={baseCurrency}
-                cashflowCount={parsedCashflows.length}
-                dividendCount={parsedDividends.length}
-                fxConversionCount={parsedFxConversions.length}
-                fxByPair={fxByPair}
-              />
+              <div className={styles.reviewHeader}>
+                <h2 className={styles.heading}>
+                  2. Review {previewInputs.length} parsed events
+                </h2>
+                <Stack direction="row" gap={1}>
+                  <Button variant="secondary" size="sm" onClick={() => setStep('upload')}>
+                    ← Back
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => void commitReview()}
+                    disabled={previewInputs.length === 0 || running}
+                  >
+                    {running ? 'Importing…' : `Import ${previewInputs.length} events`}
+                  </Button>
+                </Stack>
+              </div>
+              <div className={styles.tableWrapper}>
+                <EventsTable
+                  rows={inputsToRows(previewInputs)}
+                  query={reviewQuery}
+                  family={reviewFamily}
+                  sortDir="desc"
+                  onToggleSort={() => undefined}
+                  onRowClick={(row) => {
+                    setReviewDrawer({ mode: 'detail', type: row.event_type, row });
+                  }}
+                />
+              </div>
+              <Stack direction="row" gap={2}>
+                <Field label="Search">
+                  <Input
+                    value={reviewQuery}
+                    onChange={(e) => setReviewQuery(e.currentTarget.value)}
+                    placeholder="Filter events…"
+                  />
+                </Field>
+                <Field label="Type">
+                  <Select
+                    width={20}
+                    options={[
+                      { label: 'All', value: 'all' },
+                      { label: 'Trades', value: 'trade' },
+                      { label: 'Income', value: 'income' },
+                      { label: 'Cash', value: 'cash' },
+                      { label: 'Transfers', value: 'transfer' },
+                      { label: 'Options', value: 'option' },
+                    ]}
+                    value={reviewFamily}
+                    onChange={(opt) => setReviewFamily((opt?.value as FamilyFilter) ?? 'all')}
+                  />
+                </Field>
+              </Stack>
+              <p className={styles.hint}>
+                Portfolio: <strong>{portfolioId}</strong>
+                {baseCurrency ? ` · base ${baseCurrency}` : ''}. Click a row to inspect or
+                edit it before committing.
+              </p>
             </div>
           ) : null}
 
-          {step === 'done' && result ? (
+          {step === 'done' && importedCount !== null ? (
             <div className={styles.panel}>
               <Stack direction="row" alignItems="center" justifyContent="space-between">
                 <h2 className={styles.heading}>Import done</h2>
                 <Button onClick={reset}>Start another import</Button>
               </Stack>
-              <ResultView result={result} />
+              <Stack direction="row" gap={2} wrap="wrap">
+                <Stat label="Events imported" value={String(importedCount)} />
+                <Stat label="Portfolio" value={portfolioId} />
+                {baseCurrency ? <Stat label="Base currency" value={baseCurrency} /> : null}
+              </Stack>
             </div>
+          ) : null}
+
+          {reviewDrawer ? (
+            <EventDrawer
+              state={reviewDrawer}
+              portfolioId={portfolioId}
+              onClose={() => setReviewDrawer(null)}
+              onSubmit={(input) => {
+                if (reviewDrawer.mode !== 'create') {
+                  const idx = Number(reviewDrawer.row.source_id.replace('preview-', ''));
+                  setPreviewInputs((prev) => prev.map((p, i) => (i === idx ? input : p)));
+                }
+                setReviewDrawer(null);
+              }}
+              onEdit={(row) => setReviewDrawer({ mode: 'edit', type: row.event_type, row })}
+              onDelete={(row) => {
+                const idx = Number(row.source_id.replace('preview-', ''));
+                setPreviewInputs((prev) => prev.filter((_, i) => i !== idx));
+                setReviewDrawer(null);
+              }}
+            />
           ) : null}
         </Stack>
       </Page.Contents>
@@ -796,24 +509,19 @@ export function ImportPage() {
   );
 }
 
-const STEP_ORDER_WITH_LOTS: Step[] = ['upload', 'map', 'lots', 'confirm', 'done'];
-const STEP_ORDER_NO_LOTS: Step[] = ['upload', 'map', 'confirm', 'done'];
+const STEP_ORDER: Step[] = ['upload', 'review', 'done'];
 
-function Stepper({ step, hasTransferIns }: { step: Step; hasTransferIns: boolean }) {
+function Stepper({ step }: { step: Step }) {
   const styles = useStyles2(getStyles);
-  const includeLots = step === 'lots' || hasTransferIns;
-  const order = includeLots ? STEP_ORDER_WITH_LOTS : STEP_ORDER_NO_LOTS;
   const labels: Record<Step, string> = {
     upload: '1. Upload',
-    map: '2. Review',
-    lots: '3. Lot detail',
-    confirm: includeLots ? '4. Confirm' : '3. Confirm',
-    done: includeLots ? '5. Done' : '4. Done',
+    review: '2. Review',
+    done: '3. Done',
   };
-  const currentIdx = order.indexOf(step);
+  const currentIdx = STEP_ORDER.indexOf(step);
   return (
     <div className={styles.stepper}>
-      {order.map((s, idx) => (
+      {STEP_ORDER.map((s, idx) => (
         <div
           key={s}
           className={
@@ -831,89 +539,6 @@ function Stepper({ step, hasTransferIns }: { step: Step; hasTransferIns: boolean
   );
 }
 
-function SummaryList(props: {
-  mappings: Mapping[];
-  tradesByInstrument: Map<string, number>;
-  totalTrades: number;
-  portfolioId: string;
-  baseCurrency: string | undefined;
-  cashflowCount: number;
-  dividendCount: number;
-  fxConversionCount: number;
-  fxByPair: Map<string, { count: number; from_total: number; to_total: number }>;
-}) {
-  const styles = useStyles2(getStyles);
-  const {
-    mappings,
-    tradesByInstrument,
-    totalTrades,
-    portfolioId,
-    baseCurrency,
-    cashflowCount,
-    dividendCount,
-    fxConversionCount,
-    fxByPair,
-  } = props;
-  return (
-    <Stack direction="column" gap={2}>
-      <Stack direction="row" gap={2} wrap="wrap">
-        <Stat label="Portfolio" value={portfolioId} />
-        <Stat label="Base currency" value={baseCurrency ?? '—'} />
-        <Stat label="Trades to import" value={String(totalTrades)} />
-      </Stack>
-      <Stack direction="row" gap={2} wrap="wrap">
-        <Stat label="Dividends" value={String(dividendCount)} />
-        <Stat label="Cashflows" value={String(cashflowCount)} />
-        <Stat label="FX conversions" value={String(fxConversionCount)} />
-      </Stack>
-      {fxByPair.size > 0 ? (
-        <div className={styles.hint}>
-          FX legs:{' '}
-          {[...fxByPair.entries()]
-            .map(
-              ([pair, agg]) =>
-                `${pair}: ${agg.count} (${agg.from_total.toFixed(2)} → ${agg.to_total.toFixed(2)})`
-            )
-            .join(' · ')}
-        </div>
-      ) : null}
-      <Stack direction="row" gap={2} wrap="wrap">
-        <Stat label="New instruments" value={String(mappings.filter((m) => !m.exists).length)} />
-      </Stack>
-      <div className={styles.tableScroll}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Instrument</th>
-              <th>Trades</th>
-              <th>CCY</th>
-              <th>State</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mappings.map((m) => (
-              <tr key={m.instrumentId}>
-                <td>
-                  <strong>{m.instrumentId}</strong>
-                </td>
-                <td>{tradesByInstrument.get(m.instrumentId) ?? 0}</td>
-                <td>{m.pickedCurrency || '—'}</td>
-                <td>
-                  {m.exists ? (
-                    <Badge color="green" text="exists" />
-                  ) : (
-                    <Badge color="blue" text="new" />
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Stack>
-  );
-}
-
 function Stat({ label, value }: { label: string; value: string }) {
   const styles = useStyles2(getStyles);
   return (
@@ -921,33 +546,6 @@ function Stat({ label, value }: { label: string; value: string }) {
       <div className={styles.statLabel}>{label}</div>
       <div className={styles.statValue}>{value || '—'}</div>
     </div>
-  );
-}
-
-function ResultView({ result }: { result: RunResult }) {
-  const styles = useStyles2(getStyles);
-  return (
-    <Stack direction="column" gap={2}>
-      <Stack direction="row" gap={2} wrap="wrap">
-        <Stat label="Trades imported" value={String(result.tradesImported)} />
-        <Stat label="Transfer-ins imported" value={String(result.transferInsImported)} />
-        <Stat label="Dividends imported" value={String(result.dividendsImported)} />
-        <Stat label="Cashflows imported" value={String(result.cashflowsImported)} />
-        <Stat
-          label="FX conversions imported"
-          value={String(result.fxConversionsImported)}
-        />
-      </Stack>
-      {result.errors.length > 0 ? (
-        <Alert severity="warning" title={`${result.errors.length} warning(s)`}>
-          <ul className={styles.errList}>
-            {result.errors.map((e, i) => (
-              <li key={i}>{e}</li>
-            ))}
-          </ul>
-        </Alert>
-      ) : null}
-    </Stack>
   );
 }
 
@@ -970,24 +568,17 @@ const getStyles = (theme: GrafanaTheme2) => ({
     color: theme.colors.text.secondary,
     fontSize: theme.typography.bodySmall.fontSize,
   }),
-  tableScroll: css({
-    overflowX: 'auto',
-    maxHeight: theme.spacing(80),
+  reviewHeader: css({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing(1),
   }),
-  table: css({
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: theme.typography.bodySmall.fontSize,
-    'th, td': {
-      padding: theme.spacing(1),
-      borderBottom: `1px solid ${theme.colors.border.weak}`,
-      verticalAlign: 'middle',
-      textAlign: 'left',
-    },
-    th: {
-      color: theme.colors.text.secondary,
-      fontWeight: theme.typography.fontWeightMedium,
-    },
+  tableWrapper: css({
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderRadius: theme.shape.radius.default,
+    overflow: 'auto',
+    marginBottom: theme.spacing(2),
   }),
   stepper: css({
     display: 'flex',
