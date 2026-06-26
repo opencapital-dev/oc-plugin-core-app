@@ -379,10 +379,9 @@
       "id": "organize",
       "options": {
         "excludeByName": {
-          "portfolio_id": true
+          "portfolio": true
         },
         "renameByName": {
-          "instrument_id": "Instrument",
           "direction": "Direction",
           "quantity": "Quantity",
           "currency": "Currency",
@@ -391,14 +390,14 @@
           "realized_equity_avg_base": "Realized equity (base)",
           "unrealized_equity_avg_base": "Unrealized equity (base)",
           "lot_count": "Lots",
-          "portfolio_id": "portfolio_id",
           "avg_cost_avg_base": "avg_cost_avg_base",
           "ts": "ts",
           "realized_equity_avg_native": "Realized equity (native)",
           "realized_forex_avg_base": "Realized forex (base)",
           "unrealized_equity_avg_native": "Unrealized equity (native)",
           "unrealized_forex_avg_base": "Unrealized forex (base)",
-          "position_size_base": "Position size (base)"
+          "position_size_base": "Position size (base)",
+          "instrument": "Instrument"
         }
       }
     }

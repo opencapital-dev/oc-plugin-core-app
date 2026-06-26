@@ -459,9 +459,9 @@
       "id": "organize",
       "options": {
         "excludeByName": {
-          "portfolio_id": true,
           "ts": true,
-          "base_currency": true
+          "base_currency": true,
+          "portfolio": true
         },
         "renameByName": {
           "currency": "Currency",

@@ -483,7 +483,6 @@
           "id": "organize",
           "options": {
             "excludeByName": {
-              "portfolio_id": true,
               "instrument_count": true,
               "total_gross_avg_base": true,
               "total_net_avg_base": true,
@@ -493,7 +492,8 @@
               "unrealized_forex_avg_base": true,
               "realized_interest_base": true,
               "realized_dividends_base": true,
-              "fees_base": true
+              "fees_base": true,
+              "portfolio": true
             },
             "renameByName": {
               "cash_value_base": "Cash",
@@ -517,7 +517,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "description": "Stacked areas: positive sources (equity, forex, interest, dividends) build up gross P&L (top of positive stack = gross); fees stack below zero. Total net = gross − fees, overlaid as a line.",
+      "description": "Stacked areas: positive sources (equity, forex, interest, dividends) build up gross P&L (top of positive stack = gross); fees stack below zero. Total net = gross \u2212 fees, overlaid as a line.",
       "fieldConfig": {
         "defaults": {
           "decimals": 0,
@@ -751,13 +751,13 @@
           "id": "organize",
           "options": {
             "excludeByName": {
-              "portfolio_id": true,
               "nav_base": true,
               "equity_value_base": true,
               "cash_value_base": true,
               "instrument_count": true,
               "total_gross_avg_base": true,
-              "fees_base": true
+              "fees_base": true,
+              "portfolio": true
             },
             "renameByName": {
               "realized_equity_avg_base": "Equity (realized)",
@@ -785,7 +785,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "description": "Latest snapshot per instrument. Direction badge shows long/short/flat. PnL columns colored by sign (gradient red→green). Quantity + last price as inline gauges across the row range.",
+      "description": "Latest snapshot per instrument. Direction badge shows long/short/flat. PnL columns colored by sign (gradient red\u2192green). Quantity + last price as inline gauges across the row range.",
       "fieldConfig": {
         "defaults": {
           "decimals": 2,
@@ -868,17 +868,17 @@
                     "type": "value",
                     "options": {
                       "long": {
-                        "text": "▲ LONG",
+                        "text": "\u25b2 LONG",
                         "color": "green",
                         "index": 0
                       },
                       "short": {
-                        "text": "▼ SHORT",
+                        "text": "\u25bc SHORT",
                         "color": "red",
                         "index": 1
                       },
                       "flat": {
-                        "text": "— FLAT",
+                        "text": "\u2014 FLAT",
                         "color": "transparent",
                         "index": 2
                       }
@@ -1154,17 +1154,16 @@
           "ref": "core-app/portfolio_equity_positions"
         }
       ],
-      "title": "Equity positions — latest per instrument",
+      "title": "Equity positions \u2014 latest per instrument",
       "type": "table",
       "transformations": [
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "portfolio_id": true
+              "portfolio": true
             },
             "renameByName": {
-              "instrument_id": "Instrument",
               "direction": "Direction",
               "quantity": "Quantity",
               "currency": "Currency",
@@ -1173,14 +1172,14 @@
               "realized_equity_avg_base": "Realized equity (base)",
               "unrealized_equity_avg_base": "Unrealized equity (base)",
               "lot_count": "Lots",
-              "portfolio_id": "portfolio_id",
               "avg_cost_avg_base": "avg_cost_avg_base",
               "ts": "ts",
               "realized_equity_avg_native": "Realized equity (native)",
               "realized_forex_avg_base": "Realized forex (base)",
               "unrealized_equity_avg_native": "Unrealized equity (native)",
               "unrealized_forex_avg_base": "Unrealized forex (base)",
-              "position_size_base": "Position size (base)"
+              "position_size_base": "Position size (base)",
+              "instrument": "Instrument"
             }
           }
         }
@@ -1249,7 +1248,7 @@
                     "type": "value",
                     "options": {
                       "GBP": {
-                        "text": "£ GBP",
+                        "text": "\u00a3 GBP",
                         "color": "blue",
                         "index": 0
                       },
@@ -1259,7 +1258,7 @@
                         "index": 1
                       },
                       "EUR": {
-                        "text": "€ EUR",
+                        "text": "\u20ac EUR",
                         "color": "purple",
                         "index": 2
                       },
@@ -1647,15 +1646,15 @@
           "ref": "core-app/portfolio_cash_positions"
         }
       ],
-      "title": "Cash positions — latest per currency",
+      "title": "Cash positions \u2014 latest per currency",
       "type": "table",
       "transformations": [
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "portfolio_id": true,
-              "ts": true
+              "ts": true,
+              "portfolio": true
             },
             "renameByName": {
               "currency": "Currency",
@@ -1686,7 +1685,7 @@
         "type": "core-datasource",
         "uid": "core-datasource"
       },
-      "description": "Position-size allocation across instruments held as of the end of the dashboard window. Top 10 instruments by position size (quantity × avg cost in base currency); remainder grouped as 'Others'.",
+      "description": "Position-size allocation across instruments held as of the end of the dashboard window. Top 10 instruments by position size (quantity \u00d7 avg cost in base currency); remainder grouped as 'Others'.",
       "fieldConfig": {
         "defaults": {
           "decimals": 0,
@@ -1867,7 +1866,6 @@
           "id": "organize",
           "options": {
             "excludeByName": {
-              "portfolio_id": true,
               "ts": true,
               "nav_base": true,
               "instrument_count": true,
@@ -1879,7 +1877,8 @@
               "unrealized_forex_avg_base": true,
               "realized_interest_base": true,
               "realized_dividends_base": true,
-              "fees_base": true
+              "fees_base": true,
+              "portfolio": true
             },
             "renameByName": {
               "cash_value_base": "Cash",
