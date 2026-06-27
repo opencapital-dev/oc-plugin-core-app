@@ -60,10 +60,40 @@ func (a *App) dispatchPortfolios(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) dispatchPortfolioByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
-		respondErr(w, http.StatusNotImplemented, "portfolio delete not implemented")
+		a.handleDeletePortfolio(w, r)
 		return
 	}
 	respondErr(w, http.StatusMethodNotAllowed, "method not allowed")
+}
+
+// handleDeletePortfolio removes a portfolio and all of its data so it can be
+// re-imported cleanly. Two stores: the RW-native data plane (portfolio_events_log
+// drives the fold/MVs; data_log holds ingested prices) via Exec, and the Postgres
+// catalog row via PGExec (CDC mirrors the delete into RW for the MV joins).
+func (a *App) handleDeletePortfolio(w http.ResponseWriter, r *http.Request) {
+	portfolioID := r.PathValue("id")
+	if portfolioID == "" {
+		respondErr(w, http.StatusBadRequest, "portfolio id required")
+		return
+	}
+	ctx, ok := a.handlerCtx(w, r)
+	if !ok {
+		return
+	}
+	if _, err := a.client.Exec(ctx, `DELETE FROM portfolio_events_log WHERE portfolio_id = $1`, portfolioID); err != nil {
+		respondErr(w, http.StatusBadGateway, "delete events: "+err.Error())
+		return
+	}
+	if _, err := a.client.Exec(ctx, `DELETE FROM data_log WHERE portfolio_id = $1`, portfolioID); err != nil {
+		respondErr(w, http.StatusBadGateway, "delete prices: "+err.Error())
+		return
+	}
+	// portfolio_id is a uuid column; cast to text so a plain string param matches.
+	if _, err := a.client.PGExec(ctx, `DELETE FROM portfolios WHERE portfolio_id::text = $1`, portfolioID); err != nil {
+		respondErr(w, http.StatusBadGateway, "delete portfolio: "+err.Error())
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (a *App) dispatchInstruments(w http.ResponseWriter, r *http.Request) {
