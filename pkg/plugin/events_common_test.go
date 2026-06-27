@@ -271,3 +271,22 @@ func findStr(s, substr string) bool {
 	}
 	return false
 }
+
+// ---- clampAcqMicros (TRANSFER_IN date guard) -------------------------------
+
+func TestClampAcqMicros(t *testing.T) {
+	const minValid = int64(631152000) * 1_000_000 // 1990-01-01
+	// Go zero-time (the real corruption seen in prod): must be clamped to now-ish.
+	if got := clampAcqMicros(-62102789413000000); got < minValid {
+		t.Errorf("corrupt zero-time not clamped: %d", got)
+	}
+	// Exact zero: clamped.
+	if got := clampAcqMicros(0); got < minValid {
+		t.Errorf("zero not clamped: %d", got)
+	}
+	// Valid date (2026-01-15): passed through unchanged.
+	valid := int64(1768492503) * 1_000_000
+	if got := clampAcqMicros(valid); got != valid {
+		t.Errorf("valid date changed: got %d want %d", got, valid)
+	}
+}

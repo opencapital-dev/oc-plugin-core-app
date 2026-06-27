@@ -143,13 +143,15 @@ func (a *App) publishTransferIn(ctx context.Context, body TransferInCreate) (Tra
 	if transferID == "" {
 		transferID = lotID
 	}
-	// TRANSFER_IN business_ts = acquisition_date (pre-v6 convention).
+	// TRANSFER_IN business_ts = acquisition_date (pre-v6 convention). Guard a
+	// missing/invalid acquisition_date — see clampAcqMicros.
+	acqMicros := clampAcqMicros(body.AcquisitionDate)
 	payloadStr, err := marshalPayload(map[string]any{
 		"transfer_id":            transferID,
 		"quantity":               body.Quantity,
 		"cost_basis_native":      body.CostBasisNative,
 		"currency":               strings.ToUpper(body.Currency),
-		"acquisition_date":       body.AcquisitionDate,
+		"acquisition_date":       acqMicros,
 		"fx_rate_at_acquisition": body.FxRateAtAcquisition,
 		"fx_rate_to_base":        body.FxRateToBase,
 	})
@@ -161,7 +163,7 @@ func (a *App) publishTransferIn(ctx context.Context, body TransferInCreate) (Tra
 	// value unchanged. insertEvent's SQL uses to_timestamp($5/1e6) which
 	// converts µs → seconds for RisingWave's TIMESTAMPTZ column — correct.
 	instrumentID := body.InstrumentID
-	err = a.insertEvent(ctx, "TRANSFER_IN", lotID, body.PortfolioID, &instrumentID, body.AcquisitionDate, payloadStr)
+	err = a.insertEvent(ctx, "TRANSFER_IN", lotID, body.PortfolioID, &instrumentID, acqMicros, payloadStr)
 	if err != nil {
 		return TransferInOut{}, err
 	}
@@ -173,10 +175,10 @@ func (a *App) publishTransferIn(ctx context.Context, body TransferInCreate) (Tra
 		Quantity:            body.Quantity,
 		CostBasisNative:     body.CostBasisNative,
 		Currency:            strings.ToUpper(body.Currency),
-		AcquisitionDate:     body.AcquisitionDate,
+		AcquisitionDate:     acqMicros,
 		FxRateAtAcquisition: body.FxRateAtAcquisition,
 		FxRateToBase:        body.FxRateToBase,
-		EventTs:             body.AcquisitionDate,
+		EventTs:             acqMicros,
 		ObservationID:       a.newID(),
 		GatewayOffset:       0,
 	}, nil
