@@ -23,6 +23,19 @@ func nowMicros() int64 {
 	return time.Now().UTC().UnixMicro()
 }
 
+// clampAcqMicros guards a TRANSFER_IN acquisition_date (epoch µs). A source that
+// omits it serializes Go's zero time (≈ -6.2e16 µs = year 0002); using that as
+// business_ts corrupts the fold/MtM timeline (the lot anchors at year 0002 and is
+// densified back to the earliest price-day, zeroing historical NAV). Anything
+// before 1990 is treated as missing and replaced with the ingest time.
+func clampAcqMicros(acq int64) int64 {
+	const minValidAcqMicros = int64(631152000) * 1_000_000 // 1990-01-01T00:00:00Z
+	if acq < minValidAcqMicros {
+		return nowMicros()
+	}
+	return acq
+}
+
 // genID returns a UUIDv4 string.
 func genID() string {
 	return uuid.NewString()
