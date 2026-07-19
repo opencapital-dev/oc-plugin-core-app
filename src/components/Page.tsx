@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { PluginPage } from '@grafana/runtime';
-import { type ReactNode } from 'react';
 
 type Props = {
   children?: ReactNode;

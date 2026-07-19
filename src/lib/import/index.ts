@@ -12,7 +12,7 @@ import type {
 // Registry of available broker importers. Order matters for auto-detect:
 // IBKR's section-style header is more distinctive than T212's flat layout,
 // so test for it first and let T212 catch the rest.
-const importers: ReadonlyArray<BrokerImporter> = [ibkrImporter, t212Importer];
+const importers: readonly BrokerImporter[] = [ibkrImporter, t212Importer];
 const byFormat = new Map<BrokerFormat, BrokerImporter>(
   importers.map((i) => [i.format, i] as const),
 );
@@ -26,7 +26,7 @@ function pickImporter(grid: string[][], format?: BrokerFormat | 'auto'): BrokerI
     return imp;
   }
   for (const imp of importers) {
-    if (imp.detect(grid)) return imp;
+    if (imp.detect(grid)) {return imp;}
   }
   // No sniff match; default to T212 so a malformed file still produces a
   // structured parser-error list rather than throwing here.

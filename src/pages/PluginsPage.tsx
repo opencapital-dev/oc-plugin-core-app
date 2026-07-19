@@ -67,6 +67,7 @@ export function PluginsPage() {
 
   useEffect(() => {
     if (orgID) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; state set after await
       reload();
     }
   }, [orgID, reload]);

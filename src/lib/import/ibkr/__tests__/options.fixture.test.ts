@@ -1,22 +1,28 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
 import { parseOcc } from '../../occ';
 import { parseCsv } from '../../parseCsv';
 import { ibkrStatementToEvents } from '../parse';
 
+// Real broker statement kept outside the repo (personal data). Suite is
+// skipped wherever the file is absent — CI, other machines.
 const IBKR_2025 = resolve(
   __dirname,
   '../../../../../../broker_data/ibkr_papa/U11938040_2025_2025.csv',
 );
 
-describe('IBKR 2025 statement — options coverage', () => {
-  const grid = parseCsv(readFileSync(IBKR_2025, 'utf8').trim());
-  const parsed = ibkrStatementToEvents(grid, {
-    portfolio_id: 'p',
-    venue_default: 'XNAS',
-    updated_by: 't',
-    portfolio_base_currency: 'USD',
+(existsSync(IBKR_2025) ? describe : describe.skip)('IBKR 2025 statement — options coverage', () => {
+  let parsed: ReturnType<typeof ibkrStatementToEvents>;
+
+  beforeAll(() => {
+    const grid = parseCsv(readFileSync(IBKR_2025, 'utf8').trim());
+    parsed = ibkrStatementToEvents(grid, {
+      portfolio_id: 'p',
+      venue_default: 'XNAS',
+      updated_by: 't',
+      portfolio_base_currency: 'USD',
+    });
   });
 
   test('produces the expected option event counts', () => {

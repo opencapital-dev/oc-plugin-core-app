@@ -6,8 +6,6 @@ import (
 	"github.com/opencapital-dev/oc-plugin-sdk/pluginclient"
 )
 
-func strptr(s string) *string { return &s }
-
 func TestMapEventRows(t *testing.T) {
 	res := pluginclient.Result{
 		Columns: []pluginclient.Column{

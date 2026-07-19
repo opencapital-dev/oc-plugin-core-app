@@ -25,14 +25,16 @@ describe('Components/App', () => {
     } as unknown as AppRootProps;
   });
 
-  test('renders without an error"', async () => {
+  test('renders the empty-state landing page', async () => {
     const { queryByText } = render(
       <MemoryRouter>
         <App {...props} />
       </MemoryRouter>
     );
 
-    // Application is lazy loaded, so we need to wait for the component and routes to be rendered
-    await waitFor(() => expect(queryByText(/this is page one./i)).toBeInTheDocument(), { timeout: 2000 });
+    // No backend in jest: the portfolio list load fails, the provider falls
+    // back to zero portfolios, and the Admin landing page shows its
+    // create-first-portfolio empty state.
+    await waitFor(() => expect(queryByText(/create your first portfolio/i)).toBeInTheDocument(), { timeout: 2000 });
   });
 });

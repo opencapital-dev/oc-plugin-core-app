@@ -56,7 +56,7 @@ func TestEventTypeFromRawMissing(t *testing.T) {
 
 func TestWriteEventUnknownType(t *testing.T) {
 	a := &App{}
-	err := a.writeEvent(nil, []byte(`{"event_type":"NONSENSE"}`))
+	err := a.writeEvent(context.TODO(), []byte(`{"event_type":"NONSENSE"}`))
 	if err == nil {
 		t.Fatal("want error for unknown event_type")
 	}

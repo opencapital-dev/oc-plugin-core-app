@@ -19,6 +19,7 @@ export function InstrumentsPage() {
 
   useEffect(() => {
     if (!selected) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear rows when no portfolio selected
       setRows([]);
       return;
     }
@@ -27,7 +28,7 @@ export function InstrumentsPage() {
       .then((data) => alive && setRows(data))
       .catch((err) => {
         appEvents.emit(AppEvents.alertError, [err instanceof Error ? err.message : 'Failed to load instruments']);
-        if (alive) setRows([]);
+        if (alive) {setRows([]);}
       });
     return () => { alive = false; };
   }, [selected]);

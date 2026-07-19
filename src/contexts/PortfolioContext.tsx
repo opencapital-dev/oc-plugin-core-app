@@ -47,6 +47,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; state set after await
     void refresh();
   }, [refresh]);
 

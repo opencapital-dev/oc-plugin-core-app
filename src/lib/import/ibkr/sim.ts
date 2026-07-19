@@ -31,7 +31,7 @@ export function ibkrSim(parsed: BrokerImportResult): CashBucketSimResult {
   }
 
   for (const t of parsed.trades) {
-    if (!t.currency) continue;
+    if (!t.currency) {continue;}
     const ts = t.event_ts ?? 0;
     const ccy = t.currency.toUpperCase();
     const gross = t.quantity * t.price;
@@ -46,7 +46,7 @@ export function ibkrSim(parsed: BrokerImportResult): CashBucketSimResult {
     const ts = d.event_ts ?? 0;
     const ccy = d.currency.toUpperCase();
     const net = d.gross_native - (d.withholding_native ?? 0);
-    if (net <= 0) continue;
+    if (net <= 0) {continue;}
     events.push({ ts, ccy, signed: +net });
   }
 
@@ -63,12 +63,12 @@ export function ibkrSim(parsed: BrokerImportResult): CashBucketSimResult {
   const dailyDeltas: Record<string, Map<string, number>> = {};
   for (const ev of events) {
     const day = dayKeyUtc(ev.ts);
-    if (!dailyDeltas[ev.ccy]) dailyDeltas[ev.ccy] = new Map();
+    if (!dailyDeltas[ev.ccy]) {dailyDeltas[ev.ccy] = new Map();}
     const cur = dailyDeltas[ev.ccy]!;
     cur.set(day, (cur.get(day) ?? 0) + ev.signed);
   }
 
-  const timelines: Record<string, { ts: number; running: number; source: string }[]> = {};
+  const timelines: Record<string, Array<{ ts: number; running: number; source: string }>> = {};
   const errors: string[] = [];
   // Cents-level tolerance: floating-point rounding across hundreds of
   // multi-currency legs accumulates to micros, not full cents.

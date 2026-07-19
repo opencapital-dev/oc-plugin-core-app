@@ -82,7 +82,7 @@ function buildTrade212(
     return null;
   }
   const event_ts = parseEventTs(pick(row, ['time']), line, errors);
-  if (event_ts === null) return null;
+  if (event_ts === null) {return null;}
 
   const qty = parseNum(pick(row, ['no of shares', 'no. of shares']));
   if (qty === null || qty <= 0) {
@@ -114,7 +114,7 @@ function buildTrade212(
   let feeError = false;
 
   const addFee = (amount: number, feeCcy: string) => {
-    if (amount <= 0) return;
+    if (amount <= 0) {return;}
     const fc = feeCcy.toUpperCase();
     if (!fc || fc === feesPriceCcy) {
       fees += amount;
@@ -137,17 +137,17 @@ function buildTrade212(
 
   const finra = parseNum(pick(row, ['finra fee']));
   const finraCcy = pick(row, ['currency (finra fee)']) || feesPriceCcy;
-  if (finra !== null && finra > 0) addFee(finra, finraCcy);
+  if (finra !== null && finra > 0) {addFee(finra, finraCcy);}
 
   const conv = parseNum(pick(row, ['currency conversion fee']));
   const convCcy = pick(row, ['currency (currency conversion fee)']) || feesPriceCcy;
-  if (conv !== null && conv > 0) addFee(conv, convCcy);
+  if (conv !== null && conv > 0) {addFee(conv, convCcy);}
 
   const stamp = parseNum(pick(row, ['stamp duty reserve tax']));
   const stampCcy = pick(row, ['currency (stamp duty reserve tax)']) || feesPriceCcy;
-  if (stamp !== null && stamp > 0) addFee(stamp, stampCcy);
+  if (stamp !== null && stamp > 0) {addFee(stamp, stampCcy);}
 
-  if (feeError) return null;
+  if (feeError) {return null;}
 
   const trade_id = pick(row, ['id']) || undefined;
 
@@ -199,7 +199,7 @@ function buildDividend212(
     return null;
   }
   const event_ts = parseEventTs(pick(row, ['time']), line, errors);
-  if (event_ts === null) return null;
+  if (event_ts === null) {return null;}
 
   const qty = parseNum(pick(row, ['no of shares', 'no. of shares']));
   const perShare = parseNum(pick(row, ['price / share']));
@@ -293,7 +293,7 @@ function buildCashflow212(
   errors: string[],
 ): { cashflow: CashflowRequest; fxConversion: FxConversionRequest | null } | null {
   const event_ts = parseEventTs(pick(row, ['time']), line, errors);
-  if (event_ts === null) return null;
+  if (event_ts === null) {return null;}
 
   const total = parseNum(pick(row, ['total']));
   if (total === null || total <= 0) {
@@ -363,7 +363,7 @@ function buildTransferIn212(
     return null;
   }
   const event_ts = parseEventTs(pick(row, ['time']), line, errors);
-  if (event_ts === null) return null;
+  if (event_ts === null) {return null;}
 
   const qty = parseNum(pick(row, ['no of shares', 'no. of shares']));
   if (qty === null || qty <= 0) {
@@ -437,11 +437,11 @@ export function t212GridToEvents(
       const built = buildTrade212(row, cls.side, options, line, errors);
       if (built) {
         trades.push(built.trade);
-        if (built.fxConversion) fxConversions.push(built.fxConversion);
+        if (built.fxConversion) {fxConversions.push(built.fxConversion);}
       }
     } else if (cls.kind === 'transfer_in') {
       const built = buildTransferIn212(row, options, line, errors);
-      if (built) transferIns.push(built);
+      if (built) {transferIns.push(built);}
     } else if (cls.kind === 'transfer_out') {
       errors.push(
         `Line ${line}: 'Transfer out' rows are not yet supported (per-lot exit data required).`,
@@ -451,13 +451,13 @@ export function t212GridToEvents(
       const built = buildDividend212(row, options, line, errors);
       if (built) {
         dividends.push(built.dividend);
-        if (built.fxConversion) fxConversions.push(built.fxConversion);
+        if (built.fxConversion) {fxConversions.push(built.fxConversion);}
       }
     } else {
       const built = buildCashflow212(row, cls.type, options, line, errors);
       if (built) {
         cashflows.push(built.cashflow);
-        if (built.fxConversion) fxConversions.push(built.fxConversion);
+        if (built.fxConversion) {fxConversions.push(built.fxConversion);}
       }
     }
   });
@@ -502,8 +502,8 @@ export function t212GridToEvents(
  * "Statement,Header,..." multi-section layout.
  */
 export function detectT212(grid: string[][]): boolean {
-  if (grid.length === 0) return false;
+  if (grid.length === 0) {return false;}
   const head = grid[0]!.map((h) => h.trim().toLowerCase().replace(/\./g, ''));
-  if (!head.includes('action')) return false;
+  if (!head.includes('action')) {return false;}
   return head.includes('time') || head.includes('ticker');
 }
