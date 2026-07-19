@@ -52,6 +52,7 @@ export function EventsPage() {
   }, [selected]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; state set after await
     void refresh();
   }, [refresh]);
 

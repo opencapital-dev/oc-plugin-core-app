@@ -25,7 +25,7 @@ const IBKR_TIME_RE = /^(\d{4})-(\d{2})-(\d{2})[ ,]+(\d{2}):(\d{2}):(\d{2})$/;
  */
 export function parseIbkrEt(timeStr: string): number | null {
   const m = timeStr.trim().match(IBKR_TIME_RE);
-  if (!m) return null;
+  if (!m) {return null;}
   const year = Number(m[1]);
   const month = Number(m[2]);
   const day = Number(m[3]);
@@ -62,17 +62,17 @@ function parseIbkrPeriod(value: string): { start: number; end: number } | null {
   // month table so the result is timezone-independent — Date.parse on a
   // locale-formatted date drifts by the user's offset.
   const parts = value.split(/\s+-\s+/);
-  if (parts.length !== 2) return null;
+  if (parts.length !== 2) {return null;}
   const parseDate = (s: string): number | null => {
     const m = s.trim().match(IBKR_DATE_RE);
-    if (!m) return null;
+    if (!m) {return null;}
     const monthIdx = IBKR_MONTHS.indexOf(m[1]!);
-    if (monthIdx < 0) return null;
+    if (monthIdx < 0) {return null;}
     return Date.UTC(Number(m[3]), monthIdx, Number(m[2]));
   };
   const startMs = parseDate(parts[0]!);
   const endMs = parseDate(parts[1]!);
-  if (startMs === null || endMs === null) return null;
+  if (startMs === null || endMs === null) {return null;}
   return { start: startMs * 1000, end: (endMs + 86_400_000) * 1000 };
 }
 
@@ -109,15 +109,15 @@ function startSection(ctx: SectionWalkContext, name: string, headerCols: string[
 function ibkrSectionWalk(grid: string[][]): IbkrSection[] {
   const ctx: SectionWalkContext = { sections: [] };
   for (const row of grid) {
-    if (row.length < 2) continue;
+    if (row.length < 2) {continue;}
     const name = row[0]!.replace(/^﻿/, '').trim();
     const kind = row[1]!.trim();
-    if (!name || !kind) continue;
+    if (!name || !kind) {continue;}
     if (kind === 'Header') {
       startSection(ctx, name, row.slice(2).map((s) => s.trim()));
       continue;
     }
-    if (kind !== 'Data') continue;
+    if (kind !== 'Data') {continue;}
     // Find the most recent section by name — that's our active header.
     for (let i = ctx.sections.length - 1; i >= 0; i -= 1) {
       if (ctx.sections[i]!.name === name) {
@@ -132,7 +132,7 @@ function ibkrSectionWalk(grid: string[][]): IbkrSection[] {
 function ibkrSectionData(
   sections: IbkrSection[],
   name: string,
-): { headerCols: string[]; dataRows: string[][] }[] {
+): Array<{ headerCols: string[]; dataRows: string[][] }> {
   return sections
     .filter((s) => s.name === name)
     .map((s) => ({ headerCols: s.headerCols, dataRows: s.dataRows }));
@@ -145,7 +145,7 @@ function buildIbkrStockTrade(
   errors: string[],
 ): TradeRequest | null {
   const symbol = (obj[normKey('Symbol')] ?? '').trim();
-  if (!symbol) return null;
+  if (!symbol) {return null;}
   const ts = parseIbkrEt(obj[normKey('Date/Time')] ?? '');
   if (ts === null) {
     errors.push(`IBKR trade ${symbol}: bad Date/Time "${obj[normKey('Date/Time')] ?? ''}"`);
@@ -469,8 +469,8 @@ export function ibkrStatementToEvents(
   // currency from the row; ImportPage's Map step lets the operator confirm
   // or override before commit.
   const recordEquity = (instrumentId: string, currency: string): void => {
-    if (!instrumentId) return;
-    if (instrumentsToRegister.has(instrumentId)) return;
+    if (!instrumentId) {return;}
+    if (instrumentsToRegister.has(instrumentId)) {return;}
     instrumentsToRegister.set(instrumentId, {
       instrument_id: instrumentId,
       kind: 'equity',
@@ -489,8 +489,8 @@ export function ibkrStatementToEvents(
     for (const row of s.dataRows) {
       const fieldName = (row[0] ?? '').trim();
       const fieldValue = (row[1] ?? '').trim();
-      if (fieldName === 'Account') account = fieldValue;
-      else if (fieldName === 'Base Currency') baseCurrency = fieldValue.toUpperCase();
+      if (fieldName === 'Account') {account = fieldValue;}
+      else if (fieldName === 'Base Currency') {baseCurrency = fieldValue.toUpperCase();}
     }
   }
   for (const s of ibkrSectionData(sections, 'Statement')) {
@@ -509,7 +509,7 @@ export function ibkrStatementToEvents(
       const obj = rowToObj(s.headerCols, cells);
       const symbol = obj[normKey('Symbol')];
       const isin = obj[normKey('Security ID')];
-      if (symbol && isin) isins.set(symbol, isin);
+      if (symbol && isin) {isins.set(symbol, isin);}
     }
   }
 
@@ -522,7 +522,7 @@ export function ibkrStatementToEvents(
     multiplier: number,
   ): void => {
     recordEquityUnderlying(occ.underlying, currency);
-    if (instrumentsToRegister.has(occ.canonicalId)) return;
+    if (instrumentsToRegister.has(occ.canonicalId)) {return;}
     instrumentsToRegister.set(occ.canonicalId, {
       instrument_id: occ.canonicalId,
       kind: 'option',
@@ -538,8 +538,8 @@ export function ibkrStatementToEvents(
   // Stocks trade row (equity record exists), the existing entry wins (no
   // overwrite).
   function recordEquityUnderlying(instrumentId: string, currency: string): void {
-    if (!instrumentId) return;
-    if (instrumentsToRegister.has(instrumentId)) return;
+    if (!instrumentId) {return;}
+    if (instrumentsToRegister.has(instrumentId)) {return;}
     instrumentsToRegister.set(instrumentId, {
       instrument_id: instrumentId,
       kind: 'equity',
@@ -554,7 +554,7 @@ export function ibkrStatementToEvents(
   for (const s of ibkrSectionData(sections, 'Open Positions')) {
     for (const cells of s.dataRows) {
       const obj = rowToObj(s.headerCols, cells);
-      if (obj[normKey('Asset Category')] !== 'Equity and Index Options') continue;
+      if (obj[normKey('Asset Category')] !== 'Equity and Index Options') {continue;}
       const symbol = (obj[normKey('Symbol')] ?? '').trim();
       const occ = parseOccOrError(symbol, errors);
       if (!occ) {
@@ -567,7 +567,7 @@ export function ibkrStatementToEvents(
       recordOption(occ, ccy, mult);
       if (period) {
         const mark = buildIbkrOptionMark(obj, options, occ, period.end, errors);
-        if (mark) optionMarks.push(mark);
+        if (mark) {optionMarks.push(mark);}
       }
     }
   }
@@ -592,8 +592,8 @@ export function ibkrStatementToEvents(
         }
       } else if (assetCat === 'Forex') {
         const built = buildIbkrForexConversion(obj, options, account, baseCurrency, errors);
-        if (built) fxConversions.push(built);
-        else skipped += 1;
+        if (built) {fxConversions.push(built);}
+        else {skipped += 1;}
       } else if (assetCat === 'Equity and Index Options') {
         const symbol = (obj[normKey('Symbol')] ?? '').trim();
         const occ = parseOccOrError(symbol, errors);
@@ -610,20 +610,20 @@ export function ibkrStatementToEvents(
         const codes = (obj[normKey('Code')] ?? '').split(';').map((c) => c.trim()).filter(Boolean);
         if (codes.includes('Ep')) {
           const built = buildIbkrOptionExpiry(obj, options, account, errors, occ);
-          if (built) optionExpiries.push(built);
-          else skipped += 1;
+          if (built) {optionExpiries.push(built);}
+          else {skipped += 1;}
         } else if (codes.includes('Ex')) {
           const built = buildIbkrOptionDelivery(obj, options, account, errors, occ, mult, 'exercise');
-          if (built) optionExercises.push(built as OptionExerciseRequest);
-          else skipped += 1;
+          if (built) {optionExercises.push(built as OptionExerciseRequest);}
+          else {skipped += 1;}
         } else if (codes.includes('A')) {
           const built = buildIbkrOptionDelivery(obj, options, account, errors, occ, mult, 'assignment');
-          if (built) optionAssignments.push(built as OptionAssignmentRequest);
-          else skipped += 1;
+          if (built) {optionAssignments.push(built as OptionAssignmentRequest);}
+          else {skipped += 1;}
         } else {
           const built = buildIbkrOptionTrade(obj, options, account, errors, occ);
-          if (built) trades.push(built);
-          else skipped += 1;
+          if (built) {trades.push(built);}
+          else {skipped += 1;}
         }
       } else {
         skipped += 1;
@@ -710,13 +710,13 @@ export function ibkrStatementToEvents(
   const ibkrBaseCcy = (options.portfolio_base_currency ?? '').toUpperCase();
   if (ibkrBaseCcy && options.dividendFxRates) {
     for (const dividend of dividends) {
-      if (!dividend.dividend_id) continue;
+      if (!dividend.dividend_id) {continue;}
       const divCcy = dividend.currency.toUpperCase();
-      if (divCcy === ibkrBaseCcy) continue;
+      if (divCcy === ibkrBaseCcy) {continue;}
       const rate = options.dividendFxRates[dividend.dividend_id];
-      if (rate === undefined || rate <= 0) continue;
+      if (rate === undefined || rate <= 0) {continue;}
       const netNative = dividend.gross_native - (dividend.withholding_native ?? 0);
-      if (netNative <= 0) continue;
+      if (netNative <= 0) {continue;}
       fxConversions.push({
         portfolio_id: options.portfolio_id,
         from_currency: divCcy,
@@ -843,7 +843,7 @@ export function ibkrStatementToEvents(
  * multi-section "Statement,Header,Field Name,Field Value" row.
  */
 export function detectIbkr(grid: string[][]): boolean {
-  if (grid.length === 0) return false;
+  if (grid.length === 0) {return false;}
   const head = grid[0]!;
   return (
     head.length >= 4 &&

@@ -26,7 +26,7 @@ export function t212Sim(parsed: BrokerImportResult): CashBucketSimResult {
   }
 
   for (const t of parsed.trades) {
-    if (!t.currency) continue;
+    if (!t.currency) {continue;}
     const ts = t.event_ts ?? 0;
     const ccy = t.currency.toUpperCase();
     const gross = t.quantity * t.price;
@@ -50,8 +50,8 @@ export function t212Sim(parsed: BrokerImportResult): CashBucketSimResult {
     const ts = d.event_ts ?? 0;
     const ccy = d.currency.toUpperCase();
     const net = d.gross_native - (d.withholding_native ?? 0);
-    if (net <= 0) continue;
-    if (d.fx_rate_to_base && d.fx_rate_to_base > 0) continue;
+    if (net <= 0) {continue;}
+    if (d.fx_rate_to_base && d.fx_rate_to_base > 0) {continue;}
     events.push({ ts, ccy, signed: +net, source: d.dividend_id ?? `d-${ts}-${ccy}` });
   }
 
@@ -81,7 +81,7 @@ export function t212Sim(parsed: BrokerImportResult): CashBucketSimResult {
 
   events.sort((a, b) => a.ts - b.ts || a.source.localeCompare(b.source));
 
-  const timelines: Record<string, { ts: number; running: number; source: string }[]> = {};
+  const timelines: Record<string, Array<{ ts: number; running: number; source: string }>> = {};
   const errors: string[] = [];
   const balance: Record<string, number> = {};
   const EPS = 1e-9;
@@ -97,7 +97,7 @@ export function t212Sim(parsed: BrokerImportResult): CashBucketSimResult {
       );
     }
     balance[ev.ccy] = next;
-    if (!timelines[ev.ccy]) timelines[ev.ccy] = [];
+    if (!timelines[ev.ccy]) {timelines[ev.ccy] = [];}
     timelines[ev.ccy].push({ ts: ev.ts, running: next, source: ev.source });
   }
   return { timelines, errors };

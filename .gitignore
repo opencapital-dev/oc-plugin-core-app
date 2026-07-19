@@ -46,3 +46,4 @@ ci/
 .eslintcache
 .superpowers/
 .superpowers-drop/
+__pycache__/

@@ -50,7 +50,7 @@ export type CashBucketSimResult = {
   // Per-key running balance timeline. Key is currency code; entries are
   // either per-event (T212, microsecond-ordered) or per-day end-of-day
   // (IBKR). Banner code iterates by key without caring which granularity.
-  timelines: Record<string, { ts: number; running: number; source: string }[]>;
+  timelines: Record<string, Array<{ ts: number; running: number; source: string }>>;
   errors: string[];
 };
 

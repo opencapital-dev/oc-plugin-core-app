@@ -1,12 +1,15 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
 import { brokerRowsToEvents, parseCsv } from '../index';
 
+// Real broker statement kept outside the repo (personal data). Tests that
+// need it are skipped wherever the file is absent — CI, other machines.
 const IBKR_FIXTURE = resolve(
   __dirname,
   '../../../../../broker_data/ibkr_ignacio/U11120332_20260101_20260501.csv',
 );
+const testFixture = existsSync(IBKR_FIXTURE) ? test : test.skip;
 
 const T212_CSV = `Action,Time,ISIN,Ticker,Name,No. of shares,Price / share,Currency (Price / share),Exchange rate,Currency (Total),Total,ID
 Deposit,2024-01-15 10:00:00,,,,,,,,GBP,500,DEP-001
@@ -14,7 +17,7 @@ Market buy,2024-01-16 14:30:00,US0378331005,AAPL,Apple Inc,1,180,USD,1.27,GBP,14
 `;
 
 describe('broker registry dispatch', () => {
-  test('auto-detect picks IBKR on Activity Statement shape', () => {
+  testFixture('auto-detect picks IBKR on Activity Statement shape', () => {
     const grid = parseCsv(readFileSync(IBKR_FIXTURE, 'utf8').trim());
     const r = brokerRowsToEvents(grid, {
       portfolio_id: 'p',
@@ -36,7 +39,7 @@ describe('broker registry dispatch', () => {
     expect(r.format).toBe('t212');
   });
 
-  test('explicit format overrides the sniffer', () => {
+  testFixture('explicit format overrides the sniffer', () => {
     const ibkrGrid = parseCsv(readFileSync(IBKR_FIXTURE, 'utf8').trim());
     const forcedT212 = brokerRowsToEvents(
       ibkrGrid,

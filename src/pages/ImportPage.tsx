@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/css';
-import { useEffect, useMemo, useState } from 'react';
 
 import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
 import {

@@ -36,7 +36,9 @@ export function EventDrawer({ state, portfolioId, onClose, onSubmit, onEdit, onD
   const [form, setForm] = useState<EventForm>(initialForm);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset drawer form when target row changes
     setType(state.type);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset drawer form when target row changes
     setForm(state.mode === 'create' ? {} : EVENT_REGISTRY[state.type].fromRow(state.row));
   }, [state]);
 

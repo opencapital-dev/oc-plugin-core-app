@@ -1,26 +1,32 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
 import { brokerRowsToEvents, parseCsv, simulateImportedCash } from '../../index';
 
+// Real broker statement kept outside the repo (personal data). Suites are
+// skipped wherever the file is absent — CI, other machines.
 const FIXTURE = resolve(
   __dirname,
   '../../../../../../broker_data/ibkr_ignacio/U11120332_20260101_20260501.csv',
 );
+const describeFixture = existsSync(FIXTURE) ? describe : describe.skip;
 
-describe('IBKR Activity Statement parser (real fixture)', () => {
-  const csv = readFileSync(FIXTURE, 'utf8');
-  const grid = parseCsv(csv.trim());
-  const parsed = brokerRowsToEvents(
-    grid,
-    {
-      portfolio_id: 'p-ibkr-test',
-      venue_default: 'XNAS',
-      updated_by: 'test',
-      portfolio_base_currency: 'CHF',
-    },
-    'ibkr_statement',
-  );
+describeFixture('IBKR Activity Statement parser (real fixture)', () => {
+  let parsed: ReturnType<typeof brokerRowsToEvents>;
+
+  beforeAll(() => {
+    const grid = parseCsv(readFileSync(FIXTURE, 'utf8').trim());
+    parsed = brokerRowsToEvents(
+      grid,
+      {
+        portfolio_id: 'p-ibkr-test',
+        venue_default: 'XNAS',
+        updated_by: 'test',
+        portfolio_base_currency: 'CHF',
+      },
+      'ibkr_statement',
+    );
+  });
 
   test('detects format + statement metadata', () => {
     expect(parsed.format).toBe('ibkr_statement');
@@ -133,9 +139,12 @@ describe('IBKR Activity Statement parser (real fixture)', () => {
   });
 });
 
-describe('IBKR parser via auto-detect', () => {
-  const csv = readFileSync(FIXTURE, 'utf8');
-  const grid = parseCsv(csv.trim());
+describeFixture('IBKR parser via auto-detect', () => {
+  let grid: ReturnType<typeof parseCsv>;
+
+  beforeAll(() => {
+    grid = parseCsv(readFileSync(FIXTURE, 'utf8').trim());
+  });
 
   test('auto-detect picks ibkr_statement on the same fixture', () => {
     const auto = brokerRowsToEvents(grid, {

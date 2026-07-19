@@ -26,13 +26,13 @@ export function pick(row: Record<string, string>, aliases: string[]): string {
   return '';
 }
 
-export function rowsToObjects(rows: string[][]): Record<string, string>[] {
+export function rowsToObjects(rows: string[][]): Array<Record<string, string>> {
   if (rows.length === 0) {
     return [];
   }
   const headers = rows[0]!.map((h) => h.trim());
   const keys = headers.map(normKey);
-  const out: Record<string, string>[] = [];
+  const out: Array<Record<string, string>> = [];
   for (let r = 1; r < rows.length; r += 1) {
     const cells = rows[r]!;
     const o: Record<string, string> = {};

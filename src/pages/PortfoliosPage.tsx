@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/css';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
 import {
@@ -61,6 +60,7 @@ export function PortfoliosPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; state set after await
     void refresh();
   }, [refresh]);
 
